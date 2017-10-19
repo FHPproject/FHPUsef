@@ -1,4 +1,8 @@
 # Release notes USEF Reference Implementation
+## Release v 1.3.7, 19 october 2017 ##
+
+###Delivered items###
+	*   Database structure for use case at the BRP application
 
 ## Release v 1.3.6, 29 september 2016 ##
 
