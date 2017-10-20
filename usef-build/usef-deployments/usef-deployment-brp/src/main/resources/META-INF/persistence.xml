@@ -29,7 +29,13 @@
         <class>energy.usef.core.model.PtuState</class>
 		<class>energy.usef.core.model.PtuSettlement</class>
 		<class>energy.usef.core.model.FlexOrderSettlement</class>
-
+<!--FHP ini/-->
+<class>energy.usef.brp.model.dataModelFHP.AGR</class>
+<class>energy.usef.brp.model.dataModelFHP.AGR_CONSUMPTION_DM</class>
+<class>energy.usef.brp.model.dataModelFHP.AGR_CONSUMPTION_DM_PTU</class>
+<class>energy.usef.brp.model.dataModelFHP.AGR_CONSUMPTION_FORECAST</class>
+<class>energy.usef.brp.model.dataModelFHP.AGR_CONSUMPTION_FORECAST_PTU</class>
+<!--FHP fini/-->
 		<class>energy.usef.brp.model.MeterDataCompany</class>
 		<class>energy.usef.brp.model.CommonReferenceOperator</class>
 		<class>energy.usef.brp.model.SynchronisationConnection</class>
