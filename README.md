@@ -2,7 +2,46 @@
 ## Release v 1.3.7, 19 october 2017 ##
 
 ###Delivered items###
-	*   Database structure for use case at the BRP application
+	*   Database structure for use case at the BRP application:
+		New classes:
+		energy.usef.brp.model.dataModelFHP.AGR
+		energy.usef.brp.model.dataModelFHP.AgrConsumptionDm
+		energy.usef.brp.model.dataModelFHP.AgrConsumptionDmPtu
+		energy.usef.brp.model.dataModelFHP.AgrConsumptionForecast
+		energy.usef.brp.model.dataModelFHP.AgrConsumptionForecastPtu
+		energy.usef.brp.model.dataModelFHP.AgrFlexOffer
+		energy.usef.brp.model.dataModelFHP.AgrFlexOfferPtu
+		energy.usef.brp.model.dataModelFHP.AgrFlexOrder
+		energy.usef.brp.model.dataModelFHP.AgrFlexOrderPtu
+		energy.usef.brp.model.dataModelFHP.AgrFlexRequest
+		energy.usef.brp.model.dataModelFHP.AgrFlexRequestPtu
+		energy.usef.brp.model.dataModelFHP.Consumer
+		energy.usef.brp.model.dataModelFHP.ConsumerConsumptionDm
+		energy.usef.brp.model.dataModelFHP.ConsumerConsumptionDmPtu
+		energy.usef.brp.model.dataModelFHP.ConsumerConsumptionForecast
+		energy.usef.brp.model.dataModelFHP.ConsumerConsumptionForecastPtu
+		energy.usef.brp.model.dataModelFHP.DER
+		energy.usef.brp.model.dataModelFHP.DerConsumptionDm
+		energy.usef.brp.model.dataModelFHP.DerConsumptionDmPtu
+		energy.usef.brp.model.dataModelFHP.DerConsumptionForecast
+		energy.usef.brp.model.dataModelFHP.DerConsumptionForecastPtu
+		energy.usef.brp.model.dataModelFHP.FlexAlg
+		energy.usef.brp.model.dataModelFHP.FlexAlgAgr
+		energy.usef.brp.model.dataModelFHP.FlexAlgAgrOffer
+		energy.usef.brp.model.dataModelFHP.FlexAlgPtu
+		energy.usef.brp.model.dataModelFHP.FlexAlgPtuAgr
+		energy.usef.brp.model.dataModelFHP.ImbalancepriceShortfallForecastPtu
+		energy.usef.brp.model.dataModelFHP.ImbalancePriceShortfallTsoPtu
+		energy.usef.brp.model.dataModelFHP.ImbalancePriceSurplusForecastPtu
+		energy.usef.brp.model.dataModelFHP.ImbalancePriceSurplusTsoPtu
+		energy.usef.brp.model.dataModelFHP.MessageFHP
+		energy.usef.brp.model.dataModelFHP.PortfolioEnergyDm
+		energy.usef.brp.model.dataModelFHP.PortfolioEnergyDmPtu
+		energy.usef.brp.model.dataModelFHP.PortfolioEnergyForecast
+		energy.usef.brp.model.dataModelFHP.PortfolioEnergyForecastPtu
+		energy.usef.brp.model.dataModelFHP.PortfolioEnergyForecastPtu
+		energy.usef.brp.model.dataModelFHP.PortfolioImbalanceForecast
+		energy.usef.brp.model.dataModelFHP.PortfolioImbalanceForecastPtu
 	
 	
 
