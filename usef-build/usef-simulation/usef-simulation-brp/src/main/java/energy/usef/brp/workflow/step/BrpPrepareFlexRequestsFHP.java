@@ -16,6 +16,8 @@
 
 package energy.usef.brp.workflow.step;
 
+import energy.usef.brp.config.ConfigBrp;
+import energy.usef.brp.config.ConfigBrpParam;
 import energy.usef.brp.pbcfeederimpl.PbcFeederService;
 import energy.usef.brp.workflow.plan.connection.forecast.PrepareFlexRequestWorkflowParameter;
 import energy.usef.core.util.DateTimeUtil;
@@ -68,13 +70,18 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
     @Inject
     private PbcFeederService pbcFeederService;
 
-    /**
+    @Inject
+    private ConfigBrp configBrp;
+
+    /**BigDecimal value BigDecimal value = map.get(ptuAPlanDto.getPtuIndex().intValue());
+            = map.get(ptuAPlanDto.getPtuIndex().intValue());
+            
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     @Override
     public WorkflowContext invoke(WorkflowContext context) {
-        LOGGER.info("BrpPrepareFlexRequests Stub invoked");
+        LOGGER.info("BrpPrepareFlexRequestsFHP Stub invoked");
 
         List<FlexRequestDto> flexRequestDtos = new ArrayList<>();
         List<PrognosisDto> acceptedAPlans = new ArrayList<>();
@@ -102,7 +109,7 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
                 FlexRequestDto flexRequestDto = buildMinimalFlexRequest(aPlanDto);
 
 
-                boolean anyFlexRequested  = buildFlexRequest(map, max, min, aPlanDto, flexRequestDto);
+                boolean anyFlexRequested  = buildFlexRequestFHP(map, max, min, aPlanDto, flexRequestDto);
 
                 if (LOGGER.isTraceEnabled()) {
                     flexRequestDto.getPtus().sort((o1, o2) -> o1.getPtuIndex().compareTo(o2.getPtuIndex()));
@@ -149,6 +156,17 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
                 // average
                 flexRequestDto.getPtus().add(buildFlexRequestAvailablePtu(ptuAPlanDto));
             }
+        }
+        return anyFlexRequested;
+    }
+
+  
+    private boolean buildFlexRequestFHP(Map<Integer, BigDecimal> map, BigDecimal max, BigDecimal min, PrognosisDto aPlanDto,
+            FlexRequestDto flexRequestDto) {
+        boolean anyFlexRequested = true;
+        for (PtuPrognosisDto ptuAPlanDto : aPlanDto.getPtus()) {
+            BigDecimal value = map.get(ptuAPlanDto.getPtuIndex().intValue());
+            flexRequestDto.getPtus().add(buildFlexRequestRequestedPtuFHP(ptuAPlanDto, true));
         }
         return anyFlexRequested;
     }
@@ -201,6 +219,17 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
             difference = difference.negate();
         }
         ptuFlexRequestDto.setPower(difference);
+        return ptuFlexRequestDto;
+    }
+
+    private PtuFlexRequestDto buildFlexRequestRequestedPtuFHP(PtuPrognosisDto aplanPtu, boolean reduction) {
+        PtuFlexRequestDto ptuFlexRequestDto = new PtuFlexRequestDto();
+        ptuFlexRequestDto.setPtuIndex(aplanPtu.getPtuIndex());
+        ptuFlexRequestDto.setDisposition(DispositionTypeDto.REQUESTED);
+        //TODO: Bucle for para 96
+        int ptuIndex = 1;
+        BigInteger brpActivePower = BigInteger.valueOf(configBrp.getIntegerProperty(ConfigBrpParam.BRP_ACTIVE_POWER1).intValue());
+        ptuFlexRequestDto.setPower(brpActivePower);
         return ptuFlexRequestDto;
     }
 }

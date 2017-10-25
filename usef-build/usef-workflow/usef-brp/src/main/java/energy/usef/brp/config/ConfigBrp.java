@@ -85,4 +85,15 @@ public class ConfigBrp extends AbstractConfig {
         return Integer.parseInt(properties.getProperty(configParam.name()));
     }
 
+
+    /**
+     * FHP
+     * Gets a property value as an {@link Double}.
+     *
+     * @param configParam the configuration parameter
+     * @return property value
+     */
+    public Double getDoubleProperty(ConfigBrpParam configParam) {
+        return Double.parseDouble(properties.getProperty(configParam.name()));
+    }
 }

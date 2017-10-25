@@ -35,7 +35,8 @@ public enum ConfigBrpParam {
     BRP_METER_DATA_QUERY_EXPIRATION_CHECK_INTERVAL_IN_MINUTES(Integer.class),
     BRP_METER_DATA_QUERY_EXPIRATION_IN_HOURS(Integer.class),
     BRP_SETTLEMENT_MESSAGE_DISPOSAL_TIME(String.class),
-    BRP_SETTLEMENT_RESPONSE_WAITING_DURATION(Integer.class);
+    BRP_SETTLEMENT_RESPONSE_WAITING_DURATION(Integer.class),
+    BRP_ACTIVE_POWER1(Integer.class);
 
     private Class<?> propertyClass;
 
