@@ -39,7 +39,7 @@ checkTcpPort(){
         echo `netstat -lnt | awk -v tcpPort="$tcpPort" '$6 == "LISTEN" && $4 ~ $tcpPort'`
         ;;
     Linux*)
-        echo `netstat -lnt | awk -v tcpPort="$tcpPort" '$6 == "LISTEN" && $4 ~ tcpPort "$"'`
+        echo `netstat -lnt | awk -v tcpPort="$tcpPort" '$6 == "ESCUCHAR" && $4 ~ tcpPort "$"'`
         ;;
     SunOS*)
         echo `netstat -lnt | awk -v tcpPort="$tcpPort" '$6 == "LISTEN" && $4 ~ $tcpPort'`
