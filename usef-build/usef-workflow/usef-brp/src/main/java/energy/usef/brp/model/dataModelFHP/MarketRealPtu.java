@@ -12,44 +12,24 @@ import javax.persistence.Table;
 /**
  * @author 104903
  * @version 1.0
- * @created 20-oct-2017 12:02:41
+ * @created 20-oct-2017 12:03:20
  */
 @Entity
-@Table(name = "DER_CONSUMPTION_FORECAST_PTU")
-public class DerConsumptionForecastPtu { 
+@Table(name = "MARKET_REAL_PTU")
+public class MarketRealPtu {         
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID", nullable = false)
     private Long id;
-	//public BIGINT ID;    
-    @Column(name = "DER_CONSUMPTION_FORECAST_ID", nullable = false)
-    private Long derConsumptionForecastId;  
-	//public BIGINT DER_CONSUMPTION_FORECAST_ID;
-    @Column(name = "DAY")
-    private Date day;
-	//public DATE DAY;
+//	public BIGINT ID;
+    @Column(name = "MARKET_REAL_ID", nullable = false)
+    private Long marketRealId;
 	/**
 	 * Number of the first PTU in this schedule step with regard to the schedule (the
 	 * first one is 1)
 	 */
     @Column(name = "START_PTU")
     private int startPtu;
-	//public INT START_PTU;
-	/**
-	 * The number of the PTUs this element represents. Optional, default value is 1
-	 */
-    @Column(name = "NUMBER_PTUS")
-    private int numbrePtus;
-	//public INT NUMBER_PTUS;
-    @Column(name = "START_DATETIME")
-    private Date startDatetime;
-	//public TIMESTAMP START_DATETIME;
-    @Column(name = "END_DATETIME")
-    private Date endDatetime;
-	//public TIMESTAMP END_DATETIME;
-    @Column(name = "ACTIVE_POWER")
-    private float activePower;
-	//public FLOAT ACTIVE_POWER;
 
     public Long getId() {
         return id;
@@ -59,12 +39,12 @@ public class DerConsumptionForecastPtu {
         this.id = id;
     }
 
-    public Date getDay() {
-        return day;
+    public Long getMarketRealId() {
+        return marketRealId;
     }
 
-    public void setDay(Date day) {
-        this.day = day;
+    public void setMarketRealId(Long marketRealId) {
+        this.marketRealId = marketRealId;
     }
 
     public int getStartPtu() {
@@ -75,12 +55,12 @@ public class DerConsumptionForecastPtu {
         this.startPtu = startPtu;
     }
 
-    public int getNumbrePtus() {
-        return numbrePtus;
+    public int getNumberPtus() {
+        return numberPtus;
     }
 
-    public void setNumbrePtus(int numbrePtus) {
-        this.numbrePtus = numbrePtus;
+    public void setNumberPtus(int numberPtus) {
+        this.numberPtus = numberPtus;
     }
 
     public Date getStartDatetime() {
@@ -91,12 +71,28 @@ public class DerConsumptionForecastPtu {
         this.startDatetime = startDatetime;
     }
 
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
     public Date getEndDatetime() {
         return endDatetime;
     }
 
     public void setEndDatetime(Date endDatetime) {
         this.endDatetime = endDatetime;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     public float getActivePower() {
@@ -106,20 +102,33 @@ public class DerConsumptionForecastPtu {
     public void setActivePower(float activePower) {
         this.activePower = activePower;
     }
+//	public INT START_PTU;
+	/**
+	 * The number of the PTUs this element represents. Optional, default value is 1
+	 */
+    @Column(name = "NUMBER_PTUS")
+    private int numberPtus;
+//	public INT NUMBER_PTUS;
+    @Column(name = "START_DATETIME")
+    private Date startDatetime;
+//	public TIMESTAMP START_DATETIME;
+    @Column(name = "START_DATE")
+    private Date startDate;
+//	public DATE START_DATE;
+    @Column(name = "END_DATETIME")
+    private Date endDatetime;
+//	public TIMESTAMP END_DATETIME;
+    @Column(name = "END_DATE")
+    private Date endDate;
+//	public DATE END_DATE;
+    @Column(name = "ACTIVE_POWER")
+    private float activePower;
+//	public FLOAT ACTIVE_POWER;
 
-    public DerConsumptionForecastPtu(){
+    public MarketRealPtu(){
     }
 
     public void finalize() throws Throwable {
     }
-
-    public Long getDerConsumptionForecastId() {
-        return derConsumptionForecastId;
-    }
-
-    public void setDerConsumptionForecastId(Long derConsumptionForecastId) {
-        this.derConsumptionForecastId = derConsumptionForecastId;
-    }
-
 
 }

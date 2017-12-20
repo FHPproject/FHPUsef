@@ -105,6 +105,13 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
                 LOGGER.debug(
                         "A-Plan with sequence [{}] has been set to be processed for aggregator [{}]. Flex request might be generated.",
                         aPlanDto.getSequenceNumber(), aPlanDto.getParticipantDomain());
+                if(isInitialCurtailment()) {
+                    priceDMForecast()
+                    calculateInitialCurtailment()
+                }
+                updateRemainingCurtailment()
+                buildFlexRequest()
+                
                 // If rejected, create a flex request to send.
                 FlexRequestDto flexRequestDto = buildMinimalFlexRequest(aPlanDto);
 
@@ -226,10 +233,58 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
         PtuFlexRequestDto ptuFlexRequestDto = new PtuFlexRequestDto();
         ptuFlexRequestDto.setPtuIndex(aplanPtu.getPtuIndex());
         ptuFlexRequestDto.setDisposition(DispositionTypeDto.REQUESTED);
-        //TODO: Bucle for para 96
-        int ptuIndex = 1;
-        BigInteger brpActivePower = BigInteger.valueOf(configBrp.getIntegerProperty(ConfigBrpParam.BRP_ACTIVE_POWER1).intValue());
-        ptuFlexRequestDto.setPower(brpActivePower);
+        //TODO: Parametrizar parametro
+        for (int ptuIndex=0; ptuIndex<96; ptuIndex=ptuIndex+1){
+            String BRP_ACTIVE_POWER = "BRP_ACTIVE_POWER"+ ptuIndex;
+            BigInteger brpActivePower = BigInteger.valueOf(configBrp.getIntegerProperty(ConfigBrpParam.BRP_ACTIVE_POWER1).intValue());
+            //BigInteger brpActivePower = BigInteger.valueOf(configBrp.getIntegerProperty(ConfigBrpParam.BRP_ACTIVE_POWER).intValue());
+            ptuFlexRequestDto.setPower(brpActivePower);
+        }
         return ptuFlexRequestDto;
     }
+
+    /**
+     * This method checks if the remaining curtailment is True or False
+     *
+     * @param 
+     * @return boolean 
+     */   
+    private boolean isInitialCurtailment() {}
+    
+    /**
+     * This method makes a forecast of the day ahead market price for each PTU of the following day
+     *
+     * @param PriceDMReal
+     * @param EnergyDMReal
+     * @return PriceDMForecast,EnergyDMForecast
+     */    
+    private void priceDMForecast(PriceDMReal,EnergyDMReal) {}
+    
+    /**
+     * This method informs about how much energy could be curtailed and in which PTU
+     * DERCurtailmentInitial = DERProductionForecast when PriceDMForecast < DERProfitabilityThreshold
+     * DERCurtailmentInitial = 0 when PriceDMForecast >= DERProfitabilityThreshold
+     *
+     * @param DERList
+     * @param DERProductionForecast
+     * @param PriceDMForecast      
+     * @param DERProfitabilityThreshold
+     * @return DERCurtailmentInitial 
+     */
+    private void calculateInitialCurtailment(DERList,DERProductionForecast,PriceDMForecast,DERProfitabilityThreshold) {}
+    
+    /**
+     * Method that updates DERRemainingCurtailment value
+     * if loop=0, DERRemainingCurtailment = DERRemainingInitial
+     * else DERRemainingCurtailment=DERRemainingInitial - Sum(FlexAGREDEREnergy)
+     *
+     * @param DERCurtailmentInitial     
+     * @param FlexAGRDEREnergy
+     * @param DERRemainingCurtailment
+     * @param PortfolioRemainingCurtailment
+     * @return DERRemainingCurtailment, PortfolioRemainingCurtailment 
+     */
+    private void updateRemainingCurtailment(DERCurtailmentInitial,FlexAGRDEREnergy,DERRemainingCurtailment,PortfolioRemainingCurtailment
+) {}
+    
 }

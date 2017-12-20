@@ -12,46 +12,47 @@ import javax.persistence.Table;
 /**
  * @author 104903
  * @version 1.0
- * @created 20-oct-2017 12:02:38
+ * @created 20-oct-2017 12:03:17
  */
 @Entity
-@Table(name = "DER_CONSUMPTION_FORECAST")
-public class DerConsumptionForecast {  
+@Table(name = "MARKET_FORECAST")
+public class MarketForecast {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID", nullable = false)
     private Long id;
-	//public BIGINT ID;    
-    @Column(name = "DER_ID", nullable = false)
-    private Long derId;
-	//public BIGINT DER_ID;
+    @Column(name = "MARKET_TYPE")
+    private String marketType;
+
+    public String getMarketType() {
+        return marketType;
+    }
+
+    public void setMarketType(String marketType) {
+        this.marketType = marketType;
+    }
+//	public BIGINT ID;
     @Column(name = "DATETIME")
     private Date datetime;
-	//public TIMESTAMP DATETIME;
-    @Column(name = "TYPE")
-    private String type;
-	//public VARCHAR TYPE;
+//	public TIMESTAMP DATETIME;
     @Column(name = "PTU_DURATION_MINS")
     private int ptuDurationMins;
-	//public INT PTU_DURATION_MINS;
+//	public INT PTU_DURATION_MINS;
     @Column(name = "NUMBER_PTUS")
     private int numberPtus;
-	//public INT NUMBER_PTUS;
+//	public INT NUMBER_PTUS;
     @Column(name = "START_DATETIME")
     private Date startDatetime;
-	//public TIMESTAMP START_DATETIME;
+//	public TIMESTAMP START_DATETIME;
     @Column(name = "START_DATE")
     private Date startDate;
-	//public DATE START_DATE;
+//	public DATE START_DATE;
     @Column(name = "END_DATETIME")
     private Date endDatetime;
-	//public TIMESTAMP END_DATETIME;
+//	public TIMESTAMP END_DATETIME;
     @Column(name = "END_DATE")
     private Date endDate;
-	//public DATE END_DATE;
-
-    public DerConsumptionForecast(){
-    }
+//	public DATE END_DATE;
 
     public Long getId() {
         return id;
@@ -67,14 +68,6 @@ public class DerConsumptionForecast {
 
     public void setDatetime(Date datetime) {
         this.datetime = datetime;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public int getPtuDurationMins() {
@@ -125,15 +118,10 @@ public class DerConsumptionForecast {
         this.endDate = endDate;
     }
 
+    public MarketForecast(){
+    }
+
     public void finalize() throws Throwable {
-    }
-
-    public Long getDerId() {
-        return derId;
-    }
-
-    public void setDerId(Long derId) {
-        this.derId = derId;
     }
 
 }

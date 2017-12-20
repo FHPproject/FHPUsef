@@ -12,21 +12,19 @@ import javax.persistence.Table;
 /**
  * @author 104903
  * @version 1.0
- * @created 20-oct-2017 12:02:35
+ * @created 20-oct-2017 12:02:41
  */
 @Entity
-@Table(name = "DER_CONSUMPTION_DM_PTU")
-public class DerConsumptionDmPtu { 
+@Table(name = "DER_PRODUCTION_FORECAST_PTU")
+public class DerProductionForecastPtu { 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID", nullable = false)
     private Long id;
-        //public BIGINT ID;
-    
-    @Column(name = "DER_CONSUMPTION_DM_ID", nullable = false)
-    private Long derConsumptionDmId;
-	//public BIGINT DER_CONSUMPTION_DM_ID;
-    
+	//public BIGINT ID;    
+    @Column(name = "DER_CONSUMPTION_FORECAST_ID", nullable = false)
+    private Long derConsumptionForecastId;  
+	//public BIGINT DER_CONSUMPTION_FORECAST_ID;
     @Column(name = "DAY")
     private Date day;
 	//public DATE DAY;
@@ -41,20 +39,17 @@ public class DerConsumptionDmPtu {
 	 * The number of the PTUs this element represents. Optional, default value is 1
 	 */
     @Column(name = "NUMBER_PTUS")
-    private int numberPTUs;
+    private int numbrePtus;
 	//public INT NUMBER_PTUS;
     @Column(name = "START_DATETIME")
     private Date startDatetime;
 	//public TIMESTAMP START_DATETIME;
     @Column(name = "END_DATETIME")
     private Date endDatetime;
-        //public TIMESTAMP END_DATETIME;
+	//public TIMESTAMP END_DATETIME;
     @Column(name = "ACTIVE_POWER")
     private float activePower;
 	//public FLOAT ACTIVE_POWER;
-    
-    public DerConsumptionDmPtu(){
-    }
 
     public Long getId() {
         return id;
@@ -80,12 +75,12 @@ public class DerConsumptionDmPtu {
         this.startPtu = startPtu;
     }
 
-    public int getNumberPTUs() {
-        return numberPTUs;
+    public int getNumbrePtus() {
+        return numbrePtus;
     }
 
-    public void setNumberPTUs(int numberPTUs) {
-        this.numberPTUs = numberPTUs;
+    public void setNumbrePtus(int numbrePtus) {
+        this.numbrePtus = numbrePtus;
     }
 
     public Date getStartDatetime() {
@@ -108,19 +103,23 @@ public class DerConsumptionDmPtu {
         return activePower;
     }
 
-    public Long getDerConsumptionDmId() {
-        return derConsumptionDmId;
-    }
-
-    public void setDerConsumptionDmId(Long derConsumptionDmId) {
-        this.derConsumptionDmId = derConsumptionDmId;
-    }
-
     public void setActivePower(float activePower) {
         this.activePower = activePower;
     }
 
+    public DerProductionForecastPtu(){
+    }
+
     public void finalize() throws Throwable {
     }
+
+    public Long getDerConsumptionForecastId() {
+        return derConsumptionForecastId;
+    }
+
+    public void setDerConsumptionForecastId(Long derConsumptionForecastId) {
+        this.derConsumptionForecastId = derConsumptionForecastId;
+    }
+
 
 }

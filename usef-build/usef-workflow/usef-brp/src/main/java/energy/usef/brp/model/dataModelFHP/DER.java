@@ -53,6 +53,40 @@ public class DER {
     @Column(name = "OWNER_NAME")
     private String ownerName;
 	//public VARCHAR OWNER_NAME;
+    
+    @Column(name = "CURTAILMENT_FACTOR")
+    private float curtailmentFactor;
+
+    public float getCurtailmentFactor() {
+        return curtailmentFactor;
+    }
+
+    public void setCurtailmentFactor(float curtailmentFactor) {
+        this.curtailmentFactor = curtailmentFactor;
+    }
+
+    public float getPowerMin() {
+        return powerMin;
+    }
+
+    public void setPowerMin(float powerMin) {
+        this.powerMin = powerMin;
+    }
+        
+    @Column(name = "POWER_MIN")
+    private float powerMin;
+        
+    @Column(name = "SUBSIDY")
+    private float subsidy;
+
+    public float getSubsidy() {
+        return subsidy;
+    }
+
+    public void setSubsidy(float subsidy) {
+        this.subsidy = subsidy;
+    }
+
 
     public DER(){
     }

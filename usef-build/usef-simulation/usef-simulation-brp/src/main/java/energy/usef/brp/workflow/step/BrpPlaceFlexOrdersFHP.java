@@ -38,6 +38,16 @@ import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jgap.Chromosome;
+import org.jgap.Configuration;
+import org.jgap.DeltaFitnessEvaluator;
+import org.jgap.Gene;
+import org.jgap.Genotype;
+import org.jgap.IChromosome;
+import org.jgap.InvalidConfigurationException;
+import org.jgap.impl.DefaultConfiguration;
+import org.jgap.impl.IntegerGene;
+
 /**
  * Workflow step implementation for the Workflow 'BRP Place Flex Orders'. This implementation expects to find the following
  * parameters as input:
@@ -89,17 +99,24 @@ public class BrpPlaceFlexOrdersFHP implements WorkflowStep {
             return context;
         }
 
+        
+                
         List<Long> acceptedOffers = new ArrayList<>();
 
+        //Apply algorithm on flex offers
+        acceptedOffers = assessOptimalCombination(offers, ptuDuration);        
+                   
+        
         // retrieve the data from the PBC Feeder
-        Map<Integer, BigDecimal> pbcStubData = pbcFeederService
-                .retrieveApxPrices(period, 1, PtuUtil.getNumberOfPtusPerDay(period, ptuDuration));
+        /*Map<Integer, BigDecimal> pbcStubData = pbcFeederService
+                .retrieveApxPrices(period, 1, PtuUtil.getNumberOfPtusPerDay(period, ptuDuration));*/
 
         // only accept offers with ptuFlexOffers that ALL are between the apx price thresholds.
-        offers.stream().filter(flexOffer -> hasPtuFlexOffersWithAllPricesBetweenThresholds(flexOffer, pbcStubData, ptuDuration)).
-                collect(Collectors.toList()).forEach(offer -> acceptedOffers.add(offer.getSequenceNumber()));
+        /*offers.stream().filter(flexOffer -> hasPtuFlexOffersWithAllPricesBetweenThresholds(flexOffer, pbcStubData, ptuDuration)).
+                collect(Collectors.toList()).forEach(offer -> acceptedOffers.add(offer.getSequenceNumber()));*/
 
         if (acceptedOffers.isEmpty()) {
+            executeCurtailment()
             LOGGER.debug("No flex offers are accepted, so no flex orders will be created.");
         } else {
             LOGGER.debug("Found {} flex offers that are within the acceptable price range.", acceptedOffers.size());
@@ -111,6 +128,89 @@ public class BrpPlaceFlexOrdersFHP implements WorkflowStep {
         return context;
     }
 
+    /**
+     * This method will return the selected offers, get the optimal combination of offers
+     *
+     * @param offers
+     * @param ptuDuration
+     * @return selected offers
+     *  private List<Long> assessOptimalCombination(DERRemainingCurtailment, DERCurtailmentFactor,DERSubsidy,DERPowerMin,PriceDMForecast,OfferedAGRPrice,OfferedAGRFlex) {        
+        List<Long> acceptedOffers = new ArrayList<>();
+        
+        offers.stream().forEach(offer -> acceptedOffers.add(offer.getSequenceNumber()));
+        
+        return acceptedOffers;
+    }
+     */
+    
+    /**
+     * This method will return the selected offers, get the optimal combination of offers
+     *
+     * @param DERRemainingCurtailment
+     * @param DERCurtailmentFactor
+     * @param DERSubsidy
+     * @param DERPowerMin
+     * @param PriceDMForecast
+     * @param OfferedAGRPrice
+     * @param OfferedAGRFlex
+     * @return FlexDEREnergy,FlexAGREnergy,FlexAGRDEREnergy,AGRSelectedOffer
+     */
+    private void assessOptimalCombination(DERRemainingCurtailment,DERCurtailmentFactor,DERSubsidy,DERPowerMin,PriceDMForecast,OfferedAGRPrice,OfferedAGRFlex) 
+    {}
+    
+     /**
+     * If the optimal solution found is that in which no flex offer is to be ordered, then the iteration is stopped and the remaining curtailment is executed.
+     *
+     * @param DERRemainingCurtailment
+     * @param PortfolioRemainingCurtailment
+     * @return DERFinalCurtailment, PortfolioFinalCurtailment 
+     */
+    private void executeCurtailment(DERRemainingCurtailment,PortfolioRemainingCurtailment) 
+    {}
+    
+        /**
+     * Get the optimal combination of schedules.
+     * 
+     * @param updatableSchedulesList
+     * @param ptus
+     * 
+     * @return returns the list of optimal Schedules to use for the FlexOffer.
+     * */
+    /**IDOIA
+    Map<Long, Long> getOptimalSchedules(List<Long> updatableSchedulesList, 
+            List<PtuFlexRequestDto> ptus, double requestFlexAmplifier, double percImprRmsd) {
+        //Get for each selectable schedule, the best Forecast Flex for the requested Flex
+        Map<Long, Long> optimalForecastFlexForSchedules = selectOptimalForecastFlexForSchedules(updatableSchedulesList, 
+            ptus, requestFlexAmplifier);
+        //Extract the best selectable forecasts into a List
+        List<Long> scheduleIdslist = new ArrayList<>(optimalForecastFlexForSchedules.keySet());
+        
+        Map<Long, Long> optimalSchedulesForecast = new HashMap<>();
+        if(scheduleIdslist.size() > 0) {
+            //Do combinations between the schedules and choose the best combination
+            //using Genetic Algorithms (JGAP)
+            try {
+                Genotype genotype = configureJGAP(scheduleIdslist, 
+                        optimalForecastFlexForSchedules, ptus, requestFlexAmplifier);
+                IChromosome fittest = evolve(genotype);
+                //Convert Chromosme format into ScheduleForecast map
+                for (int j = 0; j < fittest.size(); j++) {
+                    Gene gene = fittest.getGene(j);
+                    if((Integer)gene.getAllele() == 1) {
+                        //Add Schedule-Forecast
+                        Long scheduleId = scheduleIdslist.get(j);
+                        Long forecastId = optimalForecastFlexForSchedules.get(scheduleId);
+                        LOGGER.debug("Selected scheduleId:" + scheduleId + " forecastId:" + forecastId); 
+                        optimalSchedulesForecast.put(scheduleId, forecastId);
+                    }
+                }        
+            } catch (Exception e) {
+                 LOGGER.error("Error in genetic algorithm:", e); 
+            }
+        }
+        return optimalSchedulesForecast;
+    }**/
+    
     /**
      * This method will return true if all prices of all ({@link PtuFlexOfferDto)'s are below the threshold.
      *
@@ -171,4 +271,14 @@ public class BrpPlaceFlexOrdersFHP implements WorkflowStep {
         }
         return true;
     }
+    
+    /**
+     * This method will return true if all prices of all ({@link PtuFlexOfferDto)'s are below the threshold.
+     *
+     * @param flexOffer
+     * @param pbcStubData
+     * @param ptuDuration
+     * @return true if all ptuFlexOfferDto's are accepted
+     */
+    private void executeCurtailment(){}
 }
