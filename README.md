@@ -1,4 +1,8 @@
 # Release notes USEF and FHP Reference Implementation
+## Release v 1.3.8, 19 december 2017 ##
+
+systemCurtailmentMitigation business case: new data model (rename DER_PRODUCTION_DM/DER_PRODUCTION_DM_PTU with DER_CONSUMPTION_DM/DER_CONSUMPTION_DM_PTU, new CUR_ALG, MARKET). New funcionalities: PrepareFlexRequests, CreateFlexOrders.
+
 ## Release v 1.3.7, 19 october 2017 ##
 
 ###Delivered items###
