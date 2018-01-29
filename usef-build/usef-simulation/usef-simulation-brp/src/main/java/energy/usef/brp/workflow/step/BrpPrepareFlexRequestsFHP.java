@@ -18,7 +18,30 @@ package energy.usef.brp.workflow.step;
 
 import energy.usef.brp.config.ConfigBrp;
 import energy.usef.brp.config.ConfigBrpParam;
+import energy.usef.brp.model.dataModelFHP.AGR;
+import energy.usef.brp.model.dataModelFHP.CurAlg;
+import energy.usef.brp.model.dataModelFHP.CurAlgPtu;
+import energy.usef.brp.model.dataModelFHP.CurAlgPtuAgrDer;
+import energy.usef.brp.model.dataModelFHP.DER;
+import energy.usef.brp.model.dataModelFHP.DerCurtailmentPtu;
+import energy.usef.brp.model.dataModelFHP.DerProductionForecastPtu;
+import energy.usef.brp.model.dataModelFHP.DerProductionType;
+import energy.usef.brp.model.dataModelFHP.DerProfitabilityThresholdPtu;
+import energy.usef.brp.model.dataModelFHP.MarketForecastPtu;
 import energy.usef.brp.pbcfeederimpl.PbcFeederService;
+import energy.usef.brp.repository.dataModelFHP.AgrRepository;
+import energy.usef.brp.repository.dataModelFHP.CurAlgDerRepository;
+import energy.usef.brp.repository.dataModelFHP.CurAlgPtuAgrDerRepository;
+import energy.usef.brp.repository.dataModelFHP.CurAlgPtuDerRepository;
+import energy.usef.brp.repository.dataModelFHP.CurAlgPtuRepository;
+import energy.usef.brp.repository.dataModelFHP.CurAlgRepository;
+import energy.usef.brp.repository.dataModelFHP.DerCurtailmentPtuRepository;
+import energy.usef.brp.repository.dataModelFHP.DerCurtailmentRepository;
+import energy.usef.brp.repository.dataModelFHP.DerProductionForecastPtuRepository;
+import energy.usef.brp.repository.dataModelFHP.DerProfitabilityThresholdPtuRepository;
+import energy.usef.brp.repository.dataModelFHP.DerRepository;
+import energy.usef.brp.repository.dataModelFHP.MarketForecastPtuRepository;
+import energy.usef.brp.repository.dataModelFHP.MarketForecastRepository;
 import energy.usef.brp.workflow.plan.connection.forecast.PrepareFlexRequestWorkflowParameter;
 import energy.usef.core.util.DateTimeUtil;
 import energy.usef.core.util.PowerUtil;
@@ -41,6 +64,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +96,46 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
 
     @Inject
     private ConfigBrp configBrp;
+    
+    @Inject 
+    private MarketForecastRepository marketForecastRepository;
+    
+    @Inject
+    private MarketForecastPtuRepository marketForecastPtuRepository;
 
+    @Inject 
+    private DerRepository derRepository;
+    
+    @Inject
+    private AgrRepository agrRepository;
+
+    @Inject
+    private DerProfitabilityThresholdPtuRepository derProfitabilityThresholdPtuRepository;
+    
+    @Inject
+    private DerProductionForecastPtuRepository derProductionForecastPtuRepository;
+    
+    @Inject 
+    private DerCurtailmentRepository derCurtailmentRepository;
+    
+    @Inject
+    private DerCurtailmentPtuRepository derCurtailmentPtuRepository;
+    
+    @Inject
+    private CurAlgRepository curAlgRepository;
+    
+    @Inject
+    private CurAlgPtuRepository curAlgPtuRepository;
+
+    @Inject
+    private CurAlgDerRepository curAlgDerRepository;
+    
+    @Inject
+    private CurAlgPtuDerRepository curAlgPtuDerRepository;
+    
+    @Inject
+    private CurAlgPtuAgrDerRepository curAlgPtuAgrDerRepository;
+    
     /**BigDecimal value BigDecimal value = map.get(ptuAPlanDto.getPtuIndex().intValue());
             = map.get(ptuAPlanDto.getPtuIndex().intValue());
             
@@ -95,40 +158,45 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
             LocalDate aPlanDate = aPlanDtos.get(0).getPeriod();
 
             int numberOfPtusPerDay = PtuUtil.getNumberOfPtusPerDay(aPlanDate, ptuDuration);
-            Map<Integer, BigDecimal> map = pbcFeederService.retrieveApxPrices(aPlanDate, 1, numberOfPtusPerDay);
+            /*Map<Integer, BigDecimal> map = pbcFeederService.retrieveApxPrices(aPlanDate, 1, numberOfPtusPerDay);
 
             BigDecimal max = map.values().stream().max(BigDecimal::compareTo).get();
-            BigDecimal min = map.values().stream().min(BigDecimal::compareTo).get();
+            BigDecimal min = map.values().stream().min(BigDecimal::compareTo).get();*/
 
-            // For each received a-plan.
-            for (PrognosisDto aPlanDto : aPlanDtos) {
-                LOGGER.debug(
-                        "A-Plan with sequence [{}] has been set to be processed for aggregator [{}]. Flex request might be generated.",
-                        aPlanDto.getSequenceNumber(), aPlanDto.getParticipantDomain());
-                if(isInitialCurtailment()) {
-                    priceDMForecast()
-                    calculateInitialCurtailment()
-                }
-                updateRemainingCurtailment()
-                buildFlexRequest()
-                
-                // If rejected, create a flex request to send.
-                FlexRequestDto flexRequestDto = buildMinimalFlexRequest(aPlanDto);
+            float curtailmentInitial = 0;
+            int curtailmentAlgLoopNumber = getCurtailmentAlgLoopNumber(aPlanDate);
+            if(curtailmentAlgLoopNumber == 0) {
+                long marketForecastId = priceDMForecast(aPlanDate, ptuDuration, numberOfPtusPerDay);
+                curtailmentInitial = calculateInitialCurtailment(aPlanDate, marketForecastId, ptuDuration, numberOfPtusPerDay);
+            }
+            //Calculate RemainingCurtailment
+            float remainingCurtailment = updateRemainingCurtailment(aPlanDate, ptuDuration, numberOfPtusPerDay, curtailmentAlgLoopNumber);
+
+            if(remainingCurtailment > 0) {
+                // For each received a-plan.
+                for (PrognosisDto aPlanDto : aPlanDtos) {
+                    LOGGER.debug(
+                            "A-Plan with sequence [{}] has been set to be processed for aggregator [{}]. Flex request might be generated.",
+                            aPlanDto.getSequenceNumber(), aPlanDto.getParticipantDomain());
+
+                    // If rejected, create a flex request to send.
+                    FlexRequestDto flexRequestDto = buildMinimalFlexRequest(aPlanDto);
 
 
-                boolean anyFlexRequested  = buildFlexRequestFHP(map, max, min, aPlanDto, flexRequestDto);
+                    boolean anyFlexRequested  = buildFlexRequestFHPCurtailment(aPlanDto, flexRequestDto, ptuDuration, curtailmentAlgLoopNumber);
 
-                if (LOGGER.isTraceEnabled()) {
-                    flexRequestDto.getPtus().sort((o1, o2) -> o1.getPtuIndex().compareTo(o2.getPtuIndex()));
-                    flexRequestDto.getPtus().forEach(ptu ->
-                            LOGGER.trace(" PTU [{}/{}] flex request: [{}] of [{}] Wh", ptu.getPtuIndex(),
-                                    numberOfPtusPerDay,
-                                    ptu.getDisposition(), PowerUtil.powerToEnergy(ptu.getPower(), ptuDuration)));
-                }
-                if (anyFlexRequested) {
-                    flexRequestDtos.add(flexRequestDto);
-                } else {
-                    acceptedAPlans.add(aPlanDto);
+                    if (LOGGER.isTraceEnabled()) {
+                        flexRequestDto.getPtus().sort((o1, o2) -> o1.getPtuIndex().compareTo(o2.getPtuIndex()));
+                        flexRequestDto.getPtus().forEach(ptu ->
+                                LOGGER.trace(" PTU [{}/{}] flex request: [{}] of [{}] Wh", ptu.getPtuIndex(),
+                                        numberOfPtusPerDay,
+                                        ptu.getDisposition(), PowerUtil.powerToEnergy(ptu.getPower(), ptuDuration)));
+                    }
+                    if (anyFlexRequested) {
+                        flexRequestDtos.add(flexRequestDto);
+                    } else {
+                        acceptedAPlans.add(aPlanDto);
+                    }
                 }
             }
         }
@@ -178,6 +246,51 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
         return anyFlexRequested;
     }
 
+
+    /**
+     * @author TECNALIA
+     * 
+     */
+    private boolean buildFlexRequestFHPCurtailment(PrognosisDto aPlanDto,
+            FlexRequestDto flexRequestDto, Integer ptuDuration, int curtailmentAlgLoopNumber) {
+        boolean anyFlexRequested = true;
+        LocalDate aPlanDate = aPlanDto.getPeriod();
+        LocalDateTime ptuStartDateTime = new LocalDateTime(aPlanDate.getYear(), aPlanDate.getMonthOfYear(), aPlanDate.getDayOfMonth(), 0, 0, 0);
+        LocalDateTime ptuEndDateTime = ptuStartDateTime.plusMinutes(ptuDuration);        
+        for (PtuPrognosisDto ptuAPlanDto : aPlanDto.getPtus()) {
+            CurAlgPtu curAlgPtu = curAlgPtuRepository.get(curtailmentAlgLoopNumber, ptuStartDateTime, ptuEndDateTime);
+            if(curAlgPtu.getPortfolioRemainingCurtailment() != 0) {
+                //DispositionTypeDto.REQUESTED
+                flexRequestDto.getPtus().add(buildFlexRequestRequestedPtuFHPCurtailment(ptuAPlanDto, 
+                        curAlgPtu.getPortfolioRemainingCurtailment()));            
+            } else {
+                //DispositionTypeDto.AVAILABLE
+                flexRequestDto.getPtus().add(buildFlexRequestAvailablePtu(ptuAPlanDto));
+            }
+            ptuStartDateTime = ptuStartDateTime.plusMinutes(ptuDuration);
+            ptuEndDateTime = ptuEndDateTime.plusMinutes(ptuDuration);
+         }
+        return anyFlexRequested;
+    }
+
+    /**
+     * Builds a ptu of a flex request from the ptu of the related A-Plan where either reduction or increase of power is needed.
+     *
+     * @author TECNALIA
+     * 
+     * @param aplanPtu {@link PtuPrognosisDto} one of the ptus of the related A-Plan.
+     * @param portfolioRemainingCurtailment
+     * @return a PTU for the flex request.
+     */
+    private PtuFlexRequestDto buildFlexRequestRequestedPtuFHPCurtailment(PtuPrognosisDto aplanPtu, float portfolioRemainingCurtailment) {
+        PtuFlexRequestDto ptuFlexRequestDto = new PtuFlexRequestDto();
+        ptuFlexRequestDto.setPtuIndex(aplanPtu.getPtuIndex());
+        ptuFlexRequestDto.setDisposition(DispositionTypeDto.REQUESTED);
+        BigInteger power = new BigDecimal(portfolioRemainingCurtailment).toBigInteger();
+        ptuFlexRequestDto.setPower(power);
+        return ptuFlexRequestDto;
+    }
+    
     /**
      * Creates a minimal flex request from a A-Plan.
      *
@@ -244,47 +357,144 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
     }
 
     /**
-     * This method checks if the remaining curtailment is True or False
+     * This method returns the loop number of the iteration of the Curtailment 
+     * Mitigation algorithm.
      *
-     * @param 
-     * @return boolean 
+     * @author TECNALIA
+     * 
+     * @param startDate
+     * @return 
      */   
-    private boolean isInitialCurtailment() {}
+    private int getCurtailmentAlgLoopNumber(LocalDate startDate) {
+        int curtailmentAlgLoopNumber = 0;
+        //Get loop value for date startDate from CUR_ALG DB table
+        CurAlg curAlg = curAlgRepository.getLastCurAlgForDate(startDate);
+        if (curAlg != null) {
+            curtailmentAlgLoopNumber = curAlg.getLoop();
+            curtailmentAlgLoopNumber++;
+        } 
+        return curtailmentAlgLoopNumber;
+    }
     
     /**
      * This method makes a forecast of the day ahead market price for each PTU of the following day
      *
-     * @param PriceDMReal
-     * @param EnergyDMReal
-     * @return PriceDMForecast,EnergyDMForecast
+     * @author TECNALIA
+     * 
+     * @param startDate
+     * @param ptuDuration
+     * @param numberOfPtusPerDay
+     * @return 
      */    
-    private void priceDMForecast(PriceDMReal,EnergyDMReal) {}
+    private long priceDMForecast(LocalDate startDate, Integer ptuDuration, int numberOfPtusPerDay) {
+        //Initialize PriceDMForecast and EnergyDMForecast: MARKET_FORECAST and MARKET_FORECAST_PTU tables
+        long marketForecastId = marketForecastRepository.InitializeTestValues(startDate, ptuDuration, numberOfPtusPerDay);
+        return marketForecastId;
+    }
     
     /**
      * This method informs about how much energy could be curtailed and in which PTU
      * DERCurtailmentInitial = DERProductionForecast when PriceDMForecast < DERProfitabilityThreshold
      * DERCurtailmentInitial = 0 when PriceDMForecast >= DERProfitabilityThreshold
      *
-     * @param DERList
-     * @param DERProductionForecast
-     * @param PriceDMForecast      
-     * @param DERProfitabilityThreshold
-     * @return DERCurtailmentInitial 
+     * @author TECNALIA
+     * 
+     * @param startDate
+     * @param marketForecastId
+     * @param ptuDuration
+     * @param numberOfPtusPerDay
+     * @return  
      */
-    private void calculateInitialCurtailment(DERList,DERProductionForecast,PriceDMForecast,DERProfitabilityThreshold) {}
+    private float calculateInitialCurtailment(LocalDate startDate, long marketForecastId, Integer ptuDuration, int numberOfPtusPerDay) {
+        float curtailmentInitial = 0;
+        //Get DERs producers included in BRP portfolio
+        List<DER> derList = derRepository.getDers();
+        for(DER der: derList) {
+            //Create DerCurtailmentInitial table: DER_CURTAILMENT
+            LocalDateTime startDateTime = new LocalDateTime(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth(), 0, 0, 0);
+            LocalDateTime endDateTime = startDateTime.plusMinutes(ptuDuration*numberOfPtusPerDay);
+            long derCurtailmentId = derCurtailmentRepository.create(der.getId(), DerProductionType.INITIAL_CURTAILMENT, startDateTime,
+                    endDateTime, ptuDuration, numberOfPtusPerDay);
+            LocalDateTime ptuStartDateTime = startDateTime;
+            LocalDateTime ptuEndDateTime = ptuStartDateTime.plusMinutes(ptuDuration);
+            final int numPtus = 1;
+            for (int ptuNum = 1; ptuNum<=numberOfPtusPerDay; ptuNum++) {
+                float activePower = 0;
+                DerProductionForecastPtu derProductionForecastPtu = derProductionForecastPtuRepository.get(der.getId(), ptuStartDateTime, ptuEndDateTime);
+                MarketForecastPtu marketForecastPtu = marketForecastPtuRepository.get(marketForecastId, ptuStartDateTime, ptuEndDateTime);
+                DerProfitabilityThresholdPtu derProfitabilityThresholdPtu = derProfitabilityThresholdPtuRepository.get(der.getId(), ptuStartDateTime, ptuEndDateTime);
+                if(marketForecastPtu.getPrice() < derProfitabilityThresholdPtu.getProfitabilityThreshold()) {
+                    activePower = derProductionForecastPtu.getActivePower();
+                    curtailmentInitial+=derProductionForecastPtu.getActivePower();
+                }
+                //Create DerCurtailmentInitial table: DER_CURTAILMENT_PTU
+                derCurtailmentPtuRepository.create(derCurtailmentId, ptuNum, numPtus, ptuStartDateTime, ptuEndDateTime, activePower);
+                ptuStartDateTime = ptuStartDateTime.plusMinutes(ptuDuration);
+                ptuEndDateTime = ptuEndDateTime.plusMinutes(ptuDuration);
+            }
+        }
+       return curtailmentInitial;
+    }
     
     /**
      * Method that updates DERRemainingCurtailment value
-     * if loop=0, DERRemainingCurtailment = DERRemainingInitial
+     * if loop=0, DERRemainingCurtailment = DERCurtailmentInitial
      * else DERRemainingCurtailment=DERRemainingInitial - Sum(FlexAGREDEREnergy)
      *
-     * @param DERCurtailmentInitial     
-     * @param FlexAGRDEREnergy
-     * @param DERRemainingCurtailment
-     * @param PortfolioRemainingCurtailment
-     * @return DERRemainingCurtailment, PortfolioRemainingCurtailment 
+     * @author TECNALIA
+     * 
+     * @param startDate
+     * @param ptuDuration
+     * @param numberOfPtusPerDay
+     * @param curtailmentAlgLoopNumber     
+     * @return  
      */
-    private void updateRemainingCurtailment(DERCurtailmentInitial,FlexAGRDEREnergy,DERRemainingCurtailment,PortfolioRemainingCurtailment
-) {}
-    
+    private float updateRemainingCurtailment(LocalDate startDate, Integer ptuDuration, int numberOfPtusPerDay,
+            int curtailmentAlgLoopNumber) {
+        float remainingCurtailment = 0;
+        LocalDateTime startDateTime = new LocalDateTime(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth(), 0, 0, 0);
+        LocalDateTime endDateTime = startDateTime.plusMinutes(ptuDuration*numberOfPtusPerDay);
+        LocalDateTime ptuStartDateTime = startDateTime;
+        LocalDateTime ptuEndDateTime = ptuStartDateTime.plusMinutes(ptuDuration);
+        //Create PortfolioRemainingCurtailment table: CUR_ALG 
+        long curAlgId = curAlgRepository.create(curtailmentAlgLoopNumber, startDateTime,
+                    endDateTime, ptuDuration, numberOfPtusPerDay);
+        //Get DERs producers included in BRP portfolio
+        List<DER> derList = derRepository.getDers();
+        final int numPtus = 1;
+        for (int ptuNum = 1; ptuNum<=numberOfPtusPerDay; ptuNum++) {
+            float portfolioRemainingCurtailmentPtu =0;
+            //Create PortfolioRemainingCurtailment table: CURL_ALG_PTU table
+            long curAlgPtuId = curAlgPtuRepository.create(curAlgId, ptuNum, numPtus, ptuStartDateTime, ptuEndDateTime);
+            for(DER der: derList) {
+                //Create DERRemainingCurtailment tables: CURL_ALG_DER
+                long curAlgDerId = curAlgDerRepository.create(curAlgId, der.getId());
+                //Get DERCurtailmentInitialPtu
+                DerCurtailmentPtu derCurtailmentPtu = derCurtailmentPtuRepository.get(der.getId(), ptuStartDateTime, ptuEndDateTime, 
+                        DerProductionType.INITIAL_CURTAILMENT);
+                float derRemainingCurtailmentPtu =0;
+                if(curtailmentAlgLoopNumber == 0) {
+                    derRemainingCurtailmentPtu = derCurtailmentPtu.getActivePower(); 
+                } else {
+                    List<AGR> agrList = agrRepository.getAgrs();
+                    float curlAlgPtuAgrDerEnergySum = 0;
+                    for(AGR agr:agrList) {
+                        CurAlgPtuAgrDer curAlgPtuAgrDer = curAlgPtuAgrDerRepository.get(agr.getId(), 
+                                der.getId(), curtailmentAlgLoopNumber-1, ptuStartDateTime, ptuEndDateTime);
+                        curlAlgPtuAgrDerEnergySum += curAlgPtuAgrDer.getAgrDerEnergy();
+                    }
+                    derRemainingCurtailmentPtu = derCurtailmentPtu.getActivePower() - curlAlgPtuAgrDerEnergySum;
+                }
+                //Create DERRemainingCurtailment tables: CURL_ALG_PTU_DER
+                curAlgPtuDerRepository.create(curAlgDerId, curAlgPtuId, der.getId(), derRemainingCurtailmentPtu);
+                portfolioRemainingCurtailmentPtu += derRemainingCurtailmentPtu;
+            }
+            //Update PortfolioRemainingCurtailment
+            curAlgPtuRepository.updateCurtailment(curAlgPtuId, portfolioRemainingCurtailmentPtu);
+            remainingCurtailment += portfolioRemainingCurtailmentPtu;                
+            ptuStartDateTime = ptuStartDateTime.plusMinutes(ptuDuration);
+            ptuEndDateTime = ptuEndDateTime.plusMinutes(ptuDuration);
+        } 
+        return remainingCurtailment;
+    }  
 }
