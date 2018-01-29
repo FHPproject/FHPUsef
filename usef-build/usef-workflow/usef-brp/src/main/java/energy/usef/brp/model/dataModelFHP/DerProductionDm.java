@@ -3,6 +3,8 @@ package energy.usef.brp.model.dataModelFHP;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -32,7 +34,8 @@ public class DerProductionDm {
 	//public TIMESTAMP DATETIME;
     
     @Column(name = "TYPE")
-    private String type;
+    @Enumerated(value = EnumType.STRING)
+    private DerProductionType type;
 	//public VARCHAR TYPE;
     
     @Column(name = "PTU_DURATION_MINS")
@@ -81,11 +84,11 @@ public class DerProductionDm {
         this.datetime = datetime;
     }
 
-    public String getType() {
+    public DerProductionType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(DerProductionType type) {
         this.type = type;
     }
 

@@ -7,6 +7,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import static javax.persistence.TemporalType.TIMESTAMP;
 
 
 /**
@@ -33,6 +35,7 @@ public class MarketForecast {
     }
 //	public BIGINT ID;
     @Column(name = "DATETIME")
+    @Temporal(TIMESTAMP)    
     private Date datetime;
 //	public TIMESTAMP DATETIME;
     @Column(name = "PTU_DURATION_MINS")

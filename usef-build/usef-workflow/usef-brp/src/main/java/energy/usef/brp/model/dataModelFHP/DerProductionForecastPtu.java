@@ -23,11 +23,15 @@ public class DerProductionForecastPtu {
     private Long id;
 	//public BIGINT ID;    
     @Column(name = "DER_CONSUMPTION_FORECAST_ID", nullable = false)
-    private Long derConsumptionForecastId;  
+    private Long derProductionForecastId;  
 	//public BIGINT DER_CONSUMPTION_FORECAST_ID;
-    @Column(name = "DAY")
-    private Date day;
-	//public DATE DAY;
+    
+    @Column(name = "START_DATE")
+    private Date startDate;
+    
+    @Column(name = "END_DATE")
+    private Date endDate;
+
 	/**
 	 * Number of the first PTU in this schedule step with regard to the schedule (the
 	 * first one is 1)
@@ -59,12 +63,20 @@ public class DerProductionForecastPtu {
         this.id = id;
     }
 
-    public Date getDay() {
-        return day;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public void setDay(Date day) {
-        this.day = day;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     public int getStartPtu() {
@@ -113,12 +125,12 @@ public class DerProductionForecastPtu {
     public void finalize() throws Throwable {
     }
 
-    public Long getDerConsumptionForecastId() {
-        return derConsumptionForecastId;
+    public Long getDerProductionForecastId() {
+        return derProductionForecastId;
     }
 
-    public void setDerConsumptionForecastId(Long derConsumptionForecastId) {
-        this.derConsumptionForecastId = derConsumptionForecastId;
+    public void setDerProductionForecastId(Long derProductionForecastId) {
+        this.derProductionForecastId = derProductionForecastId;
     }
 
 

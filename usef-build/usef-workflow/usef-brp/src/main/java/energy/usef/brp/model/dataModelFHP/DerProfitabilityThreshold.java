@@ -3,6 +3,8 @@ package energy.usef.brp.model.dataModelFHP;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -12,74 +14,60 @@ import javax.persistence.Table;
 /**
  * @author 104903
  * @version 1.0
- * @created 20-oct-2017 12:02:46
+ * @created 20-oct-2017 12:02:32
  */
 @Entity
-@Table(name = "CUR_ALG")
-public class CurAlg {
+@Table(name = "DER_PROFITABILITY_THRESHOLD")
+public class DerProfitabilityThreshold {  
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID", nullable = false)
     private Long id;
-//	public BIGINT ID;
+	//public BIGINT ID;
+    
+    @Column(name = "DER_ID", nullable = false)
+    private Long derId;
+        //public BIGINT DER_ID;
+    
     @Column(name = "DATETIME")
     private Date datetime;
-//	public TIMESTAMP DATETIME;
+	//public TIMESTAMP DATETIME;
+    
     @Column(name = "TYPE")
-    private String type;
-//	public VARCHAR TYPE;    
+    @Enumerated(value = EnumType.STRING)
+    private DerProductionType type;
+	//public VARCHAR TYPE;
+    
     @Column(name = "PTU_DURATION_MINS")
     private int ptuDurationMins;
-//	public INT PTU_DURATION_MINS;
+	//public INT PTU_DURATION_MINS;
+    
     @Column(name = "NUMBER_PTUS")
     private int numberPtus;
-//	public INT NUMBER_PTUS;
+	//public INT NUMBER_PTUS;
+    
     @Column(name = "START_DATETIME")
     private Date startDatetime;
-//	public TIMESTAMP START_DATETIME;
+	//public TIMESTAMP START_DATETIME;
+    
     @Column(name = "START_DATE")
     private Date startDate;
-//	public DATE START_DATE;
+	//public DATE START_DATE;
+    
     @Column(name = "END_DATETIME")
     private Date endDatetime;
-//	public TIMESTAMP END_DATETIME;
+	//public TIMESTAMP END_DATETIME;
+    
     @Column(name = "END_DATE")
     private Date endDate;
-//	public DATE END_DATE;
-    @Column(name = "CASH_FLOW")
-    private float cashFlow;
-//	public FLOAT CASH_FLOW;
-    @Column(name = "LOOP")
-    private int loop;
+	//public DATE END_DATE;
 
-    public int getLoop() {
-        return loop;
+    public DerProfitabilityThreshold(){
     }
 
-    public void setLoop(int loop) {
-        this.loop = loop;
+    public void finalize() throws Throwable {
     }
 
-    public float getPortfolioPayment() {
-        return portfolioPayment;
-    }
-
-    public void setPortfolioPayment(float portfolioPayment) {
-        this.portfolioPayment = portfolioPayment;
-    }
-
-    public float getAgrPayment() {
-        return agrPayment;
-    }
-
-    public void setAgrPayment(float agrPayment) {
-        this.agrPayment = agrPayment;
-    }
-    @Column(name = "PORTFOLIO_PAYMENT")
-    private float portfolioPayment;
-    @Column(name = "AGR_PAYMENT")
-    private float agrPayment;
-    
     public Long getId() {
         return id;
     }
@@ -96,11 +84,11 @@ public class CurAlg {
         this.datetime = datetime;
     }
 
-    public String getType() {
+    public DerProductionType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(DerProductionType type) {
         this.type = type;
     }
 
@@ -152,21 +140,14 @@ public class CurAlg {
         this.endDate = endDate;
     }
 
-    public float getCashFlow() {
-        return cashFlow;
+    public Long getDerId() {
+        return derId;
     }
 
-    public void setCashFlow(float cashFlow) {
-        this.cashFlow = cashFlow;
+    public void setDerId(Long derId) {
+        this.derId = derId;
     }
-
-
-	public CurAlg(){
-
-	}
-
-	public void finalize() throws Throwable {
-
-	}
+    
+    
 
 }

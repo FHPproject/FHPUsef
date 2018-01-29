@@ -16,24 +16,24 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "DER_PRODUCTION_DM_PTU")
-public class DerProductionDmPtu { 
+public class DerProfitabilityThresholdPtu { 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID", nullable = false)
     private Long id;
         //public BIGINT ID;
     
-    @Column(name = "DER_CONSUMPTION_DM_ID", nullable = false)
-    private Long derProductionDmId;
+    @Column(name = "DER_PROFITABILITY_THRESHOLD_ID", nullable = false)
+    private Long derProfitabilityThresholdId;
 	//public BIGINT DER_CONSUMPTION_DM_ID;
-    
+
     @Column(name = "START_DATE")
     private Date startDate;
     
     @Column(name = "END_DATE")
     private Date endDate;
-
-        /**
+    
+	/**
 	 * Number of the first PTU in this schedule step with regard to the schedule (the
 	 * first one is 1)
 	 */
@@ -52,11 +52,11 @@ public class DerProductionDmPtu {
     @Column(name = "END_DATETIME")
     private Date endDatetime;
         //public TIMESTAMP END_DATETIME;
-    @Column(name = "ACTIVE_POWER")
-    private float activePower;
+    @Column(name = "PROFITABILITY_THRESHOLD")
+    private float profitabilityThreshold;
 	//public FLOAT ACTIVE_POWER;
     
-    public DerProductionDmPtu(){
+    public DerProfitabilityThresholdPtu(){
     }
 
     public Long getId() {
@@ -115,20 +115,20 @@ public class DerProductionDmPtu {
         this.endDatetime = endDatetime;
     }
 
-    public float getActivePower() {
-        return activePower;
+    public float getProfitabilityThreshold() {
+        return profitabilityThreshold;
     }
 
-    public Long getDerProductionDmId() {
-        return derProductionDmId;
+    public Long getDerProfitabilityThresholdId() {
+        return derProfitabilityThresholdId;
     }
 
-    public void setDerProductionDmId(Long derProductionDmId) {
-        this.derProductionDmId = derProductionDmId;
+    public void setDerProfitabilityThresholdId(Long derProfitabilityThresholdId) {
+        this.derProfitabilityThresholdId = derProfitabilityThresholdId;
     }
 
-    public void setActivePower(float activePower) {
-        this.activePower = activePower;
+    public void setProfitabilityThreshold(float profitabilityThreshold) {
+        this.profitabilityThreshold = profitabilityThreshold;
     }
 
     public void finalize() throws Throwable {

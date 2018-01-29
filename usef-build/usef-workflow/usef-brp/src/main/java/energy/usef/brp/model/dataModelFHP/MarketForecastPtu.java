@@ -102,6 +102,16 @@ public class MarketForecastPtu {
     public void setActivePower(float activePower) {
         this.activePower = activePower;
     }
+
+    public float getPrice() {
+        return price;
+    }
+
+    public void setPrice(float price) {
+        this.price = price;
+    }
+
+
 //	public INT START_PTU;
 	/**
 	 * The number of the PTUs this element represents. Optional, default value is 1
@@ -124,6 +134,8 @@ public class MarketForecastPtu {
     @Column(name = "ACTIVE_POWER")
     private float activePower;
 //	public FLOAT ACTIVE_POWER;
+    @Column(name = "PRICE")
+    private float price;
 
     public MarketForecastPtu(){
     }

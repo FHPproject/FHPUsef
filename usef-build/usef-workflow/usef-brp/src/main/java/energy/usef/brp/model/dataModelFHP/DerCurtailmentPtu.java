@@ -15,17 +15,16 @@ import javax.persistence.Table;
  * @created 20-oct-2017 12:02:35
  */
 @Entity
-@Table(name = "DER_PRODUCTION_DM_PTU")
-public class DerProductionDmPtu { 
+@Table(name = "DER_CURTAILMENT_PTU")
+public class DerCurtailmentPtu { 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID", nullable = false)
     private Long id;
         //public BIGINT ID;
     
-    @Column(name = "DER_CONSUMPTION_DM_ID", nullable = false)
-    private Long derProductionDmId;
-	//public BIGINT DER_CONSUMPTION_DM_ID;
+    @Column(name = "DER_CURTAILMENT_ID", nullable = false)
+    private Long derCurtailmentId;
     
     @Column(name = "START_DATE")
     private Date startDate;
@@ -33,10 +32,10 @@ public class DerProductionDmPtu {
     @Column(name = "END_DATE")
     private Date endDate;
 
-        /**
-	 * Number of the first PTU in this schedule step with regard to the schedule (the
-	 * first one is 1)
-	 */
+    /**
+     * Number of the first PTU in this schedule step with regard to the schedule (the
+     * first one is 1)
+     */
     @Column(name = "START_PTU")
     private int startPtu;
 	//public INT START_PTU;
@@ -56,7 +55,7 @@ public class DerProductionDmPtu {
     private float activePower;
 	//public FLOAT ACTIVE_POWER;
     
-    public DerProductionDmPtu(){
+    public DerCurtailmentPtu(){
     }
 
     public Long getId() {
@@ -119,12 +118,12 @@ public class DerProductionDmPtu {
         return activePower;
     }
 
-    public Long getDerProductionDmId() {
-        return derProductionDmId;
+    public Long getDerCurtailmentId() {
+        return derCurtailmentId;
     }
 
-    public void setDerProductionDmId(Long derProductionDmId) {
-        this.derProductionDmId = derProductionDmId;
+    public void setDerCurtailmentId(Long derCurtailmentId) {
+        this.derCurtailmentId = derCurtailmentId;
     }
 
     public void setActivePower(float activePower) {

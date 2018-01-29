@@ -1,9 +1,12 @@
 package energy.usef.brp.model.dataModelFHP;
 
 import com.google.api.client.util.Data;
+import energy.usef.core.model.DocumentStatus;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -54,7 +57,8 @@ public class AgrFlexOffer {
     private Date endDate;
 //	public DATE END_DATE;
     @Column(name = "STATUS")
-    private String status;
+    @Enumerated(value = EnumType.STRING)
+    private DocumentStatus status;
 //	public VARCHAR STATUS;
     @Column(name = "PTU_DURATION_MINS")
     private int ptuDurationMins;
@@ -161,11 +165,11 @@ public class AgrFlexOffer {
         this.endDate = endDate;
     }
 
-    public String getStatus() {
+    public DocumentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(DocumentStatus status) {
         this.status = status;
     }
 

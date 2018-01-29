@@ -25,9 +25,13 @@ public class CurAlgPtu {
     @Column(name = "CUR_ALG_ID", nullable = false)
     private Long curAlgId;
 //	public BIGINT CUR_ALG_ID;
-    @Column(name = "DAY")
-    private Date day;
-//	public DATE DAY;
+
+    @Column(name = "START_DATE")
+    private Date startDate;
+    
+    @Column(name = "END_DATE")
+    private Date endDate;
+    
 //	/**
 //	 * Number of the first PTU in this schedule step with regard to the schedule (the
 //	 * first one is 1)
@@ -128,12 +132,20 @@ public class CurAlgPtu {
         this.id = id;
     }
 
-    public Date getDay() {
-        return day;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public void setDay(Date day) {
-        this.day = day;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     public int getStartPtu() {
