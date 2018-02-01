@@ -47,4 +47,21 @@ public class AgrRepository extends BaseRepository<AGR> {
         return result;
     }
 
+    /**
+     * Return an AGR
+     * 
+     * @param domain
+     * @return AGR entity
+     */
+    public AGR getAgr(String domain) {
+        StringBuilder queryString = new StringBuilder("SELECT a FROM AGR a");
+        queryString.append(" WHERE a.domain = :domain");
+        List<AGR> result = entityManager.createQuery(queryString.toString(), AGR.class)
+                .setParameter("domain", domain)
+                .getResultList();
+        if(result == null || result.isEmpty())
+            return null;
+                
+        return result.get(0);        
+    }
 }

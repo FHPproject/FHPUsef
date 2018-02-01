@@ -16,6 +16,12 @@
 
 package energy.usef.brp.controller;
 
+import energy.usef.brp.model.dataModelFHP.AGR;
+import energy.usef.brp.model.dataModelFHP.AgrFlexRequest;
+import energy.usef.brp.repository.dataModelFHP.AgrFlexOfferPtuRepository;
+import energy.usef.brp.repository.dataModelFHP.AgrFlexOfferRepository;
+import energy.usef.brp.repository.dataModelFHP.AgrFlexRequestRepository;
+import energy.usef.brp.repository.dataModelFHP.AgrRepository;
 import static energy.usef.core.data.xml.bean.message.MessagePrecedence.ROUTINE;
 
 import energy.usef.core.config.Config;
@@ -25,6 +31,7 @@ import energy.usef.core.data.xml.bean.message.DispositionAcceptedRejected;
 import energy.usef.core.data.xml.bean.message.FlexOffer;
 import energy.usef.core.data.xml.bean.message.FlexOfferResponse;
 import energy.usef.core.data.xml.bean.message.MessageMetadata;
+import energy.usef.core.data.xml.bean.message.PTU;
 import energy.usef.core.data.xml.bean.message.USEFRole;
 import energy.usef.core.exception.BusinessException;
 import energy.usef.core.exception.BusinessValidationException;
@@ -40,6 +47,9 @@ import energy.usef.core.util.XMLUtil;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.Period;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +73,18 @@ public class FlexOfferController extends BaseIncomingMessageController<FlexOffer
 
     @Inject
     private Config config;
+    
+    @Inject
+    private AgrFlexOfferRepository  agrFlexOfferRepository;
+
+    @Inject
+    private AgrFlexOfferPtuRepository  agrFlexOfferPtuRepository;
+    
+    @Inject
+    private AgrRepository agrRepository;
+    
+    @Inject
+    private AgrFlexRequestRepository agrFlexRequestRepository;
 
     /**
      * {@inheritDoc}
@@ -94,9 +116,17 @@ public class FlexOfferController extends BaseIncomingMessageController<FlexOffer
             // store
             corePlanboardBusinessService.storeFlexOffer(usefIdentifier, request,
                     DocumentStatus.ACCEPTED, request.getMessageMetadata().getSenderDomain());
+
+            //TECNALIA-BEGIN
+            saveAgrFlexOffer(request, DocumentStatus.ACCEPTED);
+            //TECNALIA-END
+        
             // send response
             sendResponse(request, null);
         } catch (BusinessValidationException exception) {
+            //TECNALIA-BEGIN
+            saveAgrFlexOffer(request, DocumentStatus.REJECTED);
+            //TECNALIA-END
             sendResponse(request, exception);
         }
 
@@ -124,4 +154,45 @@ public class FlexOfferController extends BaseIncomingMessageController<FlexOffer
         LOGGER.info("FlexOfferResponse with conversation-id {} is sent to the outgoing queue.",
                 response.getMessageMetadata().getConversationID());
     }
+    
+    //TECNALIA-BEGIN
+    void saveAgrFlexOffer(FlexOffer request, DocumentStatus status) {
+        LocalDateTime offerStartDateTime;
+        LocalDateTime offerEndDateTime;
+        LocalDate startDate = request.getPeriod();
+        LocalDateTime startDateTime = new LocalDateTime(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth(), 0, 0, 0);
+        offerStartDateTime = startDateTime;
+        offerEndDateTime = startDateTime;
+        int ptuDuration = request.getPTUDuration().getMinutes();
+        //Save data in AGR_FLEX_REQUEST table
+        AGR agr = agrRepository.getAgr(request.getMessageMetadata().getSenderDomain());
+        AgrFlexRequest agrFlexRequest = agrFlexRequestRepository.get(agr.getId(), request.getPeriod());
+        long agrFlexOfferId = agrFlexOfferRepository.create(agr.getId(), request.getMessageMetadata().getSenderDomain(), 
+                request.getPTUDuration().getMinutes(), request.getPTU().size(), request.getFlexRequestSequence(), 
+                agrFlexRequest.getId(), request.getMessageMetadata().getMessageID(), request.getCurrency(),status);
+         
+        int numPtu = 1;
+        for(PTU ptu: request.getPTU()) {
+            //Save data in AGR_FLEX_OFFER_PTU table
+            LocalDateTime ptuStartDateTime = startDateTime.plusMinutes((ptu.getStart().intValue()-1)*ptuDuration);
+            LocalDateTime ptuEndDateTime = ptuStartDateTime.plusMinutes(ptu.getDuration().intValue()*ptuDuration);
+            agrFlexOfferPtuRepository.create(agrFlexOfferId, ptuStartDateTime,
+                    ptuEndDateTime, ptu.getDuration().intValue(), ptu.getStart().intValue(), ptu.getPrice().floatValue(),
+                    ptu.getPower().floatValue());
+            if(numPtu == 1) {
+                offerStartDateTime = ptuStartDateTime;
+                offerEndDateTime = ptuEndDateTime;
+            } else { 
+                if (offerStartDateTime.isAfter(ptuStartDateTime)) {
+                    offerStartDateTime = ptuStartDateTime;               
+                }
+                if (offerEndDateTime.isBefore(ptuEndDateTime)) {
+                    offerEndDateTime = ptuEndDateTime;               
+                }
+            }
+            numPtu++;
+        }
+        agrFlexOfferRepository.updateDates(agrFlexOfferId, offerStartDateTime, offerEndDateTime);
+    }
+    //TECNALIA-END
 }

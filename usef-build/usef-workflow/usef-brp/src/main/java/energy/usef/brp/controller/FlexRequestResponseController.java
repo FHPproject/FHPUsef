@@ -16,6 +16,7 @@
 
 package energy.usef.brp.controller;
 
+import energy.usef.brp.repository.dataModelFHP.AgrFlexRequestRepository;
 import energy.usef.core.controller.BaseIncomingResponseMessageController;
 import energy.usef.core.data.xml.bean.message.FlexRequestResponse;
 import energy.usef.core.exception.BusinessException;
@@ -42,6 +43,9 @@ public class FlexRequestResponseController extends BaseIncomingResponseMessageCo
 
     @Inject
     private CorePlanboardBusinessService corePlanboardBusinessService;
+    
+    @Inject
+    private AgrFlexRequestRepository agrFlexRequestRepository;
 
     /**
      * {@inheritDoc}
@@ -69,5 +73,10 @@ public class FlexRequestResponseController extends BaseIncomingResponseMessageCo
             LOGGER.warn("Flex request from {} with sequence {} rejected.", message.getMessageMetadata().getSenderDomain()
                     , message.getSequence());
         }
+        //TECNALIA-BEGIN
+        //Update AGR_FLEX_REQUEST status
+        agrFlexRequestRepository.updateStatus(flexRequestMessage.getParticipantDomain(), 
+                flexRequestMessage.getMessage().getMessageId(), flexRequestMessage.getPeriod(), documentStatus);
+        //TECNALIA-END
     }
 }

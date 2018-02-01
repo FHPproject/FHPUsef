@@ -27,7 +27,7 @@ public class AgrFlexOffer {
     private Long id;
 //	public BIGINT ID;
     @Column(name = "MESSAGE_ID", nullable = false)
-    private Long messageID;
+    private String messageID;
 //	public BIGINT MESSAGE_ID;
     @Column(name = "AGR_ID", nullable = false)
     private Long agrId;
@@ -85,11 +85,11 @@ public class AgrFlexOffer {
         this.id = id;
     }
 
-    public Long getMessageID() {
+    public String getMessageID() {
         return messageID;
     }
 
-    public void setMessageID(Long messageID) {
+    public void setMessageID(String messageID) {
         this.messageID = messageID;
     }
 

@@ -1,8 +1,11 @@
 package energy.usef.brp.model.dataModelFHP;
 
+import energy.usef.core.workflow.dto.DispositionTypeDto;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -30,7 +33,7 @@ public class AgrFlexRequestPtu{
 //	 * first one is 1)
 //	 */
     @Column(name = "START_PTU")
-    private Long startPtu;
+    private int startPtu;
 //	public INT START_PTU;
 //	/**
 //	 * The number of the PTUs this element represents. Optional, default value is 1
@@ -54,7 +57,8 @@ public class AgrFlexRequestPtu{
     private float activePower;
 //	public FLOAT ACTIVE_POWER;
     @Column(name = "DISPOSITION")
-    private String disposition;
+    @Enumerated(value = EnumType.STRING)
+    private DispositionTypeDto disposition;
 //	public VARCHAR DISPOSITION;
 
 	public AgrFlexRequestPtu(){
@@ -80,11 +84,11 @@ public class AgrFlexRequestPtu{
             this.agrFlexRequestId = agrFlexRequestId;
     }
 
-    public Long getStartPtu() {
+    public int getStartPtu() {
         return startPtu;
     }
 
-    public void setStartPtu(Long startPtu) {
+    public void setStartPtu(int startPtu) {
         this.startPtu = startPtu;
     }
 
@@ -136,11 +140,11 @@ public class AgrFlexRequestPtu{
         this.activePower = activePower;
     }
 
-    public String getDisposition() {
+    public DispositionTypeDto getDisposition() {
         return disposition;
     }
 
-    public void setDisposition(String disposition) {
+    public void setDisposition(DispositionTypeDto disposition) {
         this.disposition = disposition;
     }
 
