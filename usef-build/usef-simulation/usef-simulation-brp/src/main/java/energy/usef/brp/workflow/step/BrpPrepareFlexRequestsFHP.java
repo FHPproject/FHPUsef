@@ -183,7 +183,8 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
                     FlexRequestDto flexRequestDto = buildMinimalFlexRequest(aPlanDto);
 
 
-                    boolean anyFlexRequested  = buildFlexRequestFHPCurtailment(aPlanDto, flexRequestDto, ptuDuration, curtailmentAlgLoopNumber);
+                    boolean anyFlexRequested  = buildFlexRequestFHPCurtailment(aPlanDto, flexRequestDto, 
+                            ptuDuration, numberOfPtusPerDay, curtailmentAlgLoopNumber);
 
                     if (LOGGER.isTraceEnabled()) {
                         flexRequestDto.getPtus().sort((o1, o2) -> o1.getPtuIndex().compareTo(o2.getPtuIndex()));
@@ -252,21 +253,24 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
      * 
      */
     private boolean buildFlexRequestFHPCurtailment(PrognosisDto aPlanDto,
-            FlexRequestDto flexRequestDto, Integer ptuDuration, int curtailmentAlgLoopNumber) {
+            FlexRequestDto flexRequestDto, Integer ptuDuration, 
+            int numberOfPtusPerDay, int curtailmentAlgLoopNumber) {
         boolean anyFlexRequested = true;
-        LocalDate aPlanDate = aPlanDto.getPeriod();
-        LocalDateTime ptuStartDateTime = new LocalDateTime(aPlanDate.getYear(), aPlanDate.getMonthOfYear(), aPlanDate.getDayOfMonth(), 0, 0, 0);
-        LocalDateTime ptuEndDateTime = ptuStartDateTime.plusMinutes(ptuDuration);        
+        LocalDate startDate = aPlanDto.getPeriod();
+        LocalDateTime startDateTime = new LocalDateTime(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth(), 0, 0, 0);
+        LocalDateTime endDateTime = startDateTime.plusMinutes(ptuDuration*numberOfPtusPerDay);
+        LocalDateTime ptuStartDateTime = startDateTime;
+        LocalDateTime ptuEndDateTime = ptuStartDateTime.plusMinutes(ptuDuration);
         for (PtuPrognosisDto ptuAPlanDto : aPlanDto.getPtus()) {
             CurAlgPtu curAlgPtu = curAlgPtuRepository.get(curtailmentAlgLoopNumber, ptuStartDateTime, ptuEndDateTime);
             if(curAlgPtu.getPortfolioRemainingCurtailment() != 0) {
                 //DispositionTypeDto.REQUESTED
                 flexRequestDto.getPtus().add(buildFlexRequestRequestedPtuFHPCurtailment(ptuAPlanDto, 
-                        curAlgPtu.getPortfolioRemainingCurtailment()));            
+                        curAlgPtu.getPortfolioRemainingCurtailment()));
             } else {
                 //DispositionTypeDto.AVAILABLE
                 flexRequestDto.getPtus().add(buildFlexRequestAvailablePtu(ptuAPlanDto));
-            }
+             }
             ptuStartDateTime = ptuStartDateTime.plusMinutes(ptuDuration);
             ptuEndDateTime = ptuEndDateTime.plusMinutes(ptuDuration);
          }
