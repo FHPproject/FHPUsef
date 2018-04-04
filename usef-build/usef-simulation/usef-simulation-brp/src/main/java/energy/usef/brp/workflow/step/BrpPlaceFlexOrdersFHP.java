@@ -104,7 +104,7 @@ public class BrpPlaceFlexOrdersFHP implements WorkflowStep {
         List<Long> acceptedOffers = new ArrayList<>();
 
         //Apply algorithm on flex offers
-        acceptedOffers = assessOptimalCombination(offers, ptuDuration);        
+        //acceptedOffers = assessOptimalCombination(offers, ptuDuration);        
                    
         
         // retrieve the data from the PBC Feeder
@@ -116,7 +116,7 @@ public class BrpPlaceFlexOrdersFHP implements WorkflowStep {
                 collect(Collectors.toList()).forEach(offer -> acceptedOffers.add(offer.getSequenceNumber()));*/
 
         if (acceptedOffers.isEmpty()) {
-            executeCurtailment()
+            executeCurtailment();
             LOGGER.debug("No flex offers are accepted, so no flex orders will be created.");
         } else {
             LOGGER.debug("Found {} flex offers that are within the acceptable price range.", acceptedOffers.size());
@@ -155,8 +155,8 @@ public class BrpPlaceFlexOrdersFHP implements WorkflowStep {
      * @param OfferedAGRFlex
      * @return FlexDEREnergy,FlexAGREnergy,FlexAGRDEREnergy,AGRSelectedOffer
      */
-    private void assessOptimalCombination(DERRemainingCurtailment,DERCurtailmentFactor,DERSubsidy,DERPowerMin,PriceDMForecast,OfferedAGRPrice,OfferedAGRFlex) 
-    {}
+    //private void assessOptimalCombination(DERRemainingCurtailment,DERCurtailmentFactor,DERSubsidy,DERPowerMin,PriceDMForecast,OfferedAGRPrice,OfferedAGRFlex) 
+    //{}
     
      /**
      * If the optimal solution found is that in which no flex offer is to be ordered, then the iteration is stopped and the remaining curtailment is executed.
@@ -165,8 +165,8 @@ public class BrpPlaceFlexOrdersFHP implements WorkflowStep {
      * @param PortfolioRemainingCurtailment
      * @return DERFinalCurtailment, PortfolioFinalCurtailment 
      */
-    private void executeCurtailment(DERRemainingCurtailment,PortfolioRemainingCurtailment) 
-    {}
+    //private void executeCurtailment(DERRemainingCurtailment,PortfolioRemainingCurtailment) 
+    //{}
     
         /**
      * Get the optimal combination of schedules.

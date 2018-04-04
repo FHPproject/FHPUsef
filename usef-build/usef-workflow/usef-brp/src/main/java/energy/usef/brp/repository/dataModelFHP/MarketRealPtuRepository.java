@@ -16,8 +16,11 @@
 
 package energy.usef.brp.repository.dataModelFHP;
 
+import energy.usef.brp.model.dataModelFHP.MarketReal;
 import energy.usef.brp.model.dataModelFHP.MarketRealPtu;
+import energy.usef.brp.repository.dataModelFHP.MarketRealRepository;
 import energy.usef.core.repository.BaseRepository;
+import energy.usef.core.util.DateTimeUtil;
 
 import java.util.List;
 
@@ -25,6 +28,7 @@ import javax.ejb.Stateless;
 import javax.persistence.TemporalType;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 
 /**
  * @author TECNALIA
@@ -59,4 +63,35 @@ public class MarketRealPtuRepository extends BaseRepository<MarketRealPtu> {
                 
         return result.get(0);
     }
+    public long InitializeTestValues(long marketRealId, LocalDate startDate, Integer ptuDuration, int numberOfPtusPerDay) {
+
+        //TODO: Initialize MarketRealPtu tables with Test values
+        MarketRealPtu marketRealPtu = new MarketRealPtu();
+        int ptuDone = 0;
+        
+        for (int ptuNum = 1; ptuNum<=numberOfPtusPerDay; ptuNum++) {
+            LocalDateTime dayStart = startDate.toDateTimeAtStartOfDay().toLocalDateTime();
+            LocalDateTime ptuStart = dayStart.plusMinutes(ptuDuration * (ptuNum - 1));
+            LocalDateTime ptuEnd = ptuStart.plusMinutes(ptuDuration);
+            LocalDate endDate = startDate.plusDays(1);
+
+            marketRealPtu.setStartDate(startDate.toDateTimeAtStartOfDay().toDate()); 
+            marketRealPtu.setEndDate(ptuEnd.toLocalDate().toDateTimeAtStartOfDay().toDate());
+            marketRealPtu.setStartDatetime(ptuStart); 
+            marketRealPtu.setEndDatetime(ptuEnd);        
+
+            marketRealPtu.setMarketRealId(marketRealId);
+            marketRealPtu.setStartPtu(ptuNum);
+            marketRealPtu.setNumberPtus(1);
+            
+            marketRealPtu.setPrice(1);
+            marketRealPtu.setEnergy(1);
+
+            persist(marketRealPtu);
+            ptuDone++;
+        }
+      
+
+        return ptuDone;
+    }    
 }

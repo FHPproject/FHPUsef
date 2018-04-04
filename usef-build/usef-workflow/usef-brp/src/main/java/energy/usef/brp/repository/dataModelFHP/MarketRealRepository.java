@@ -17,10 +17,13 @@
 package energy.usef.brp.repository.dataModelFHP;
 
 import energy.usef.brp.model.dataModelFHP.MarketReal;
+import energy.usef.brp.model.dataModelFHP.MarketRealPtu;
 import energy.usef.core.repository.BaseRepository;
 import energy.usef.core.util.DateTimeUtil;
+import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.persistence.TemporalType;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
@@ -43,13 +46,36 @@ public class MarketRealRepository extends BaseRepository<MarketReal> {
      */
     public long InitializeTestValues(LocalDate startDate, Integer ptuDuration, int numberOfPtusPerDay) {
         MarketReal marketReal = new MarketReal();
-        //TODO: Initialize MarketReal and MarketRealPtu tables with Test values
+        //TODO: Initialize MarketReal table with Test values
         LocalDateTime now = DateTimeUtil.getCurrentDateTime();
+        LocalDate endDate = startDate.plusDays(1);
+        
         marketReal.setDatetime(now.toDateTime().toDate());
        
-        marketReal.setStartDate(startDate.toDateMidnight().toDate());
+        //marketReal.setStartDate(startDate.toDateMidnight().toDate());
+        marketReal.setStartDate(startDate.toDateTimeAtStartOfDay().toDate()); 
+        marketReal.setEndDate(endDate.toDateTimeAtStartOfDay().toDate());
+        marketReal.setStartDatetime(startDate.toDateTimeAtStartOfDay().toDate()); 
+        marketReal.setEndDatetime(endDate.toDateTimeAtStartOfDay().toDate());        
+        
+        marketReal.setPtuDurationMins(ptuDuration);
+        marketReal.setNumberPtus(numberOfPtusPerDay);
+        
+        marketReal.setMarketType("DAY_AHEAD_MARKET");
         
         persist(marketReal);
         return marketReal.getId();
     }
+    
+    public MarketReal get(long marketRealId) {
+        StringBuilder queryString = new StringBuilder("SELECT ptu FROM MarketReal mr");
+        queryString.append(" WHERE mr.marketRealId = :marketRealId");
+        List<MarketReal> result = entityManager.createQuery(queryString.toString(), MarketReal.class)
+                .setParameter("marketRealId", marketRealId)
+                .getResultList();
+        if(result == null || result.isEmpty())
+            return null;
+                
+        return result.get(0);
+    }    
 }
