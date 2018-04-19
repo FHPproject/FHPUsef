@@ -9,8 +9,7 @@ package energy.usef.brp.model.dataModelFHP;
  *
  * @author tecnalia
  */
-public enum DerProductionType {
-    DAY_AHEAD_MARKET,
-    INTRADAY_MARKET,
-    SYSTEM_FLEX  
+public enum DerCurtailmentType {
+    CURTAILMENT_INITIAL,
+    CURTAILMENT_FINAL
 }

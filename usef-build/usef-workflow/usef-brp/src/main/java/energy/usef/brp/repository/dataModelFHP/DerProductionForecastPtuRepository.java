@@ -16,6 +16,8 @@
 
 package energy.usef.brp.repository.dataModelFHP;
 
+import energy.usef.brp.model.dataModelFHP.DerCurtailmentPtu;
+import energy.usef.brp.model.dataModelFHP.DerProductionForecast;
 import energy.usef.brp.model.dataModelFHP.DerProductionForecastPtu;
 import energy.usef.core.repository.BaseRepository;
 
@@ -23,6 +25,8 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.persistence.TemporalType;
+import javax.transaction.Transactional;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
 /**
@@ -34,6 +38,36 @@ import org.joda.time.LocalDateTime;
 @Stateless
 public class DerProductionForecastPtuRepository extends BaseRepository<DerProductionForecastPtu> {
 
+    /**
+     * Create ProductionForecastPtu.
+     * 
+     * @param derProductionForecastId
+     * @param startPtu
+     * @param numPtus
+     * @param startDateTime
+     * @param endDateTime
+     * @param activePower
+     * @return created ProductionForecastPtu ID.
+     */
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
+    public long create(long derProductionForecastId, int startPtu, int numPtus, 
+            LocalDateTime startDateTime, LocalDateTime endDateTime, float activePower) {
+        DerProductionForecastPtu derProductionForecastPtu = new DerProductionForecastPtu();
+        derProductionForecastPtu.setDerProductionForecastId(derProductionForecastId);
+        derProductionForecastPtu.setStartPtu(startPtu);
+        derProductionForecastPtu.setNumberPtus(numPtus);
+        derProductionForecastPtu.setActivePower(activePower);
+        
+        derProductionForecastPtu.setStartDate(startDateTime.toLocalDate().toDateTimeAtStartOfDay().toDate());      
+        derProductionForecastPtu.setEndDate(endDateTime.toLocalDate().toDateTimeAtStartOfDay().toDate());      
+        
+        derProductionForecastPtu.setStartDatetime(startDateTime);
+        derProductionForecastPtu.setEndDatetime(endDateTime);
+        
+        persist(derProductionForecastPtu);
+        return derProductionForecastPtu.getId();
+    }   
+    
     /**
      * Return the DerProductionForecastPtu.
      * 
@@ -60,4 +94,25 @@ public class DerProductionForecastPtuRepository extends BaseRepository<DerProduc
         return result.get(0);
     }
     
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)    
+    public DerProductionForecastPtu fetch(long derId, long derProductionForecastId, 
+            int startPtu, int numPtus, 
+            LocalDateTime ptuStartDateTime, LocalDateTime ptuEndDateTime, 
+            float activePower){
+        // The same as get but in case there is no coincident register it creates it from stub data
+        DerProductionForecastPtu derProductionForecastPtu = 
+                get(derId, ptuStartDateTime, ptuEndDateTime);
+        if ((derProductionForecastPtu == null) || (derProductionForecastPtu.getId() == 0))
+        {
+            create(derProductionForecastId, startPtu, numPtus, 
+            ptuStartDateTime, ptuEndDateTime, activePower);
+            derProductionForecastPtu = get(derId, ptuStartDateTime,
+            ptuEndDateTime);                
+        }          
+
+        if(derProductionForecastPtu == null)
+            return null;
+                
+        return derProductionForecastPtu;
+    }           
 }

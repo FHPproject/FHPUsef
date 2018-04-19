@@ -21,6 +21,7 @@ import energy.usef.core.repository.BaseRepository;
 import energy.usef.core.util.DateTimeUtil;
 
 import javax.ejb.Stateless;
+import javax.transaction.Transactional;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
@@ -41,6 +42,7 @@ public class MarketForecastRepository extends BaseRepository<MarketForecast> {
      * @param numberOfPtusPerDay
      * @return MarketForecast Id
      */
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)    
     public long InitializeTestValues(LocalDate startDate, Integer ptuDuration, int numberOfPtusPerDay) {
         MarketForecast marketForecast = new MarketForecast();
         //TODO: Initialize MarketForecast and MarketForecastPtu tables with Test values

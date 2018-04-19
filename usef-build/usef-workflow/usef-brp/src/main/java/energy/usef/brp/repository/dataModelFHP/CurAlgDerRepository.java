@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.persistence.TemporalType;
+import javax.transaction.Transactional;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
@@ -44,6 +45,7 @@ public class CurAlgDerRepository extends BaseRepository<CurAlgDer> {
      * @param derId
      * @return created CurAlgDer ID.
      */
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     public long create(long curAlgId, long derId) {
         CurAlgDer curAlgDer = new CurAlgDer();
         LocalDateTime now = DateTimeUtil.getCurrentDateTime();
@@ -54,6 +56,31 @@ public class CurAlgDerRepository extends BaseRepository<CurAlgDer> {
         persist(curAlgDer);
         return curAlgDer.getId();
     }
+    
+    /**
+     * Return the PTU of the Curtailment Algorithm for a determined loop number, AGR and DER
+     * and for a determined start and end step dates.
+     * 
+     * @param agrId
+     * @param derId
+     * @param curtailmentAlgLoopNumber
+     * @param ptuStartDateTime
+     * @param ptuEndDateTime
+     * @return CurAlgPtuAgrDer entity
+     */
+    public CurAlgDer get(long curAlgId, long derId) {
+        StringBuilder queryString = new StringBuilder("SELECT apad FROM CurAlgDer apad ");
+        queryString.append(" WHERE apad.derId = :derId");
+        queryString.append(" AND apad.curAlgId = :curAlgId");
+       List<CurAlgDer> result = entityManager.createQuery(queryString.toString(), CurAlgDer.class)
+                .setParameter("derId", derId)
+                .setParameter("curAlgId", curAlgId)
+                .getResultList();
+        if(result == null || result.isEmpty())
+            return null;
+                
+        return result.get(0);
+    }    
     
 
 }

@@ -17,6 +17,7 @@
 package energy.usef.brp.repository.dataModelFHP;
 
 import energy.usef.brp.model.dataModelFHP.CurAlg;
+import energy.usef.brp.model.dataModelFHP.MarketType;
 import energy.usef.core.repository.BaseRepository;
 import energy.usef.core.util.DateTimeUtil;
 
@@ -24,6 +25,7 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.persistence.TemporalType;
+import javax.transaction.Transactional;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
@@ -42,12 +44,14 @@ public class CurAlgRepository extends BaseRepository<CurAlg> {
      * @param startDate
      * @return List of MeterDataCompany entities
      */
-    public CurAlg getLastCurAlgForDate(LocalDate startDate) {
+    public CurAlg getLastCurAlgForDate(LocalDate startDate, MarketType type) {
         StringBuilder queryString = new StringBuilder("SELECT c FROM CurAlg c");
         queryString.append(" WHERE startDate = :startDate");
-        queryString.append(" ORDER BY datetime, loop DESC");
+        queryString.append(" AND type = :type");        
+        queryString.append(" ORDER BY loop DESC");
         List<CurAlg> result = entityManager.createQuery(queryString.toString(), CurAlg.class)
                 .setParameter("startDate", startDate.toDateMidnight().toDate(), TemporalType.DATE)
+                .setParameter("type", type)
                 .getResultList();
         if(result == null || result.isEmpty())
             return null;
@@ -65,11 +69,11 @@ public class CurAlgRepository extends BaseRepository<CurAlg> {
      * @param numberOfPtusPerDay
      * @return created CurAlg ID.
      */
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     public long create(int curtailmentAlgLoopNumber, LocalDateTime startDateTime,
-        LocalDateTime endDateTime, Integer ptuDuration, int numberOfPtusPerDay) {
+        LocalDateTime endDateTime, Integer ptuDuration, int numberOfPtusPerDay, MarketType type) {
         CurAlg curAlg = new CurAlg();
-        //TODO: Type???????????
-        //curAlg.setType(type);
+
         LocalDateTime now = DateTimeUtil.getCurrentDateTime();
         curAlg.setDatetime(now.toDateTime().toDate());
         curAlg.setLoop(curtailmentAlgLoopNumber);
@@ -77,12 +81,14 @@ public class CurAlgRepository extends BaseRepository<CurAlg> {
         curAlg.setPtuDurationMins(ptuDuration);
         LocalDate startDate = new LocalDate(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth());
         curAlg.setStartDate(startDate.toDateMidnight().toDate());
-        LocalDate endDate = new LocalDate(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth());
+        LocalDate endDate = new LocalDate(endDateTime.getYear(), endDateTime.getMonthOfYear(), endDateTime.getDayOfMonth());
         curAlg.setEndDate(endDate.toDateMidnight().toDate());
-        curAlg.setStartDatetime(startDateTime.toDateTime().toDate());
+        curAlg.setStartDatetime(startDateTime);
+        curAlg.setEndDatetime(endDateTime);
         curAlg.setPortfolioPayment(0);
         curAlg.setAgrPayment(0);
         curAlg.setCashFlow(0);
+        curAlg.setType(type);
        
         persist(curAlg);
         return curAlg.getId();

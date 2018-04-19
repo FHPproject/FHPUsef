@@ -17,13 +17,15 @@
 package energy.usef.brp.repository.dataModelFHP;
 
 import energy.usef.brp.model.dataModelFHP.MarketReal;
-import energy.usef.brp.model.dataModelFHP.MarketRealPtu;
+import energy.usef.brp.model.dataModelFHP.MarketType;
 import energy.usef.core.repository.BaseRepository;
 import energy.usef.core.util.DateTimeUtil;
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.persistence.TemporalType;
+import javax.transaction.Transactional;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
@@ -44,6 +46,8 @@ public class MarketRealRepository extends BaseRepository<MarketReal> {
      * @param numberOfPtusPerDay
      * @return MarketReal Id
      */
+    
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     public long InitializeTestValues(LocalDate startDate, Integer ptuDuration, int numberOfPtusPerDay) {
         MarketReal marketReal = new MarketReal();
         //TODO: Initialize MarketReal table with Test values
@@ -53,19 +57,80 @@ public class MarketRealRepository extends BaseRepository<MarketReal> {
         marketReal.setDatetime(now.toDateTime().toDate());
        
         //marketReal.setStartDate(startDate.toDateMidnight().toDate());
-        marketReal.setStartDate(startDate.toDateTimeAtStartOfDay().toDate()); 
-        marketReal.setEndDate(endDate.toDateTimeAtStartOfDay().toDate());
-        marketReal.setStartDatetime(startDate.toDateTimeAtStartOfDay().toDate()); 
-        marketReal.setEndDatetime(endDate.toDateTimeAtStartOfDay().toDate());        
+        Date DateStartDate = startDate.toDateTimeAtStartOfDay().toDate(); 
+        Date DateEndDate = endDate.toDateTimeAtStartOfDay().toDate();
+        LocalDateTime DateStartDatetime = startDate.toDateTimeAtStartOfDay().toLocalDateTime(); 
+        LocalDateTime DateEndDatetime = endDate.toDateTimeAtStartOfDay().toLocalDateTime();       
+            
+        marketReal.setStartDate(DateStartDate); 
+        marketReal.setEndDate(DateEndDate);
+        marketReal.setStartDatetime(DateStartDatetime); 
+        marketReal.setEndDatetime(DateEndDatetime);        
         
         marketReal.setPtuDurationMins(ptuDuration);
         marketReal.setNumberPtus(numberOfPtusPerDay);
         
-        marketReal.setMarketType("DAY_AHEAD_MARKET");
+        marketReal.setMarketType(MarketType.DAY_AHEAD_MARKET);
         
         persist(marketReal);
         return marketReal.getId();
     }
+    
+    /**
+     * Return the MarketReal for a determined date and DER.
+     * 
+     * @param derId
+     * @param startDate
+     * @return MarketReal entities
+     */
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)    
+    public MarketReal fetch(MarketType marketType, LocalDateTime startDateTime,
+        LocalDateTime endDateTime, Integer ptuDuration, int numberOfPtusPerDay){
+        // The same as get but in case there is no coincident register it creates it from stub data
+        MarketReal marketReal = 
+                get(marketType, startDateTime, endDateTime);
+        if ((marketReal == null) || (marketReal.getId() == 0))
+        {
+            create(marketType, startDateTime,
+                endDateTime, ptuDuration, numberOfPtusPerDay);
+            marketReal = get(marketType, startDateTime,
+                                endDateTime);                
+        }          
+
+        if(marketReal == null)
+            return null;
+                
+        return marketReal;
+    }    
+    
+    
+    /**
+     * 
+     * @param startDateTime
+     * @param endDateTime
+     * @param ptuDuration
+     * @param numberOfPtusPerDay
+     * @return created MarketReal ID.
+     */
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
+    public long create(MarketType marketType, LocalDateTime startDateTime,
+        LocalDateTime endDateTime, Integer ptuDuration, int numberOfPtusPerDay) {
+        
+        MarketReal marketReal = new MarketReal();
+        marketReal.setNumberPtus(numberOfPtusPerDay);
+        marketReal.setPtuDurationMins(ptuDuration);
+        LocalDateTime now = DateTimeUtil.getCurrentDateTime();
+        marketReal.setDatetime(now.toDateTime().toDate());       
+        marketReal.setStartDate(startDateTime.toLocalDate().toDateTimeAtStartOfDay().toDate());        
+        marketReal.setEndDate(endDateTime.toLocalDate().toDateTimeAtStartOfDay().toDate());        
+        marketReal.setStartDatetime(startDateTime);
+        marketReal.setEndDatetime(endDateTime);
+        
+        marketReal.setMarketType(marketType);        
+       
+        persist(marketReal);
+        return marketReal.getId();
+    }        
     
     public MarketReal get(long marketRealId) {
         StringBuilder queryString = new StringBuilder("SELECT ptu FROM MarketReal mr");
@@ -77,5 +142,23 @@ public class MarketRealRepository extends BaseRepository<MarketReal> {
             return null;
                 
         return result.get(0);
-    }    
+    }  
+    
+    public MarketReal get(MarketType marketType, LocalDateTime startDateTime,
+        LocalDateTime endDateTime){
+        StringBuilder queryString = new StringBuilder("SELECT c FROM MarketReal c");
+        queryString.append(" WHERE c.marketType = :marketType");        
+        queryString.append(" AND c.startDatetime <= :startDateTime");
+        queryString.append(" AND c.endDatetime >= :endDateTime");
+        List<MarketReal> result = entityManager.createQuery(queryString.toString(), MarketReal.class)
+                .setParameter("marketType", marketType)
+                .setParameter("startDateTime", startDateTime.toDateTime().toDate(), TemporalType.TIMESTAMP)
+                .setParameter("endDateTime", endDateTime.toDateTime().toDate(), TemporalType.TIMESTAMP)
+                .getResultList();
+        if(result == null || result.isEmpty())
+            return null;
+                
+        return result.get(0);
+    }      
+
 }

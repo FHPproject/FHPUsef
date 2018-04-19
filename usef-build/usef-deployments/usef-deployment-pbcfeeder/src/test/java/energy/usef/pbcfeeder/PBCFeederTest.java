@@ -149,6 +149,19 @@ public class PBCFeederTest {
         List<Double> apx = pbcFeeder.getApx();
         assertEquals(61.19077659, apx.get(0), 0.5);
     }
+    
+    //TECNALIA-BEGIN
+    /**
+     * CHANGES TO THE STUBINPUTDATA.XLS MIGHT BREAK THIS TEST.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testGetSolveWindForecast() throws Exception {
+        List<Double> apx = pbcFeeder.getSolveWindForecast();
+        assertEquals(68.25000000, apx.get(0), 0.5);
+    }    
+    //TECNALIA-END        
 
     /**
      * CHANGES TO THE STUBINPUTDATA.XLS MIGHT BREAK THIS TEST.

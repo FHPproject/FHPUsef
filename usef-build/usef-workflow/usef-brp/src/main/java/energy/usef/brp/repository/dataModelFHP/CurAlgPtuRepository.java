@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.persistence.TemporalType;
+import javax.transaction.Transactional;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
@@ -44,6 +45,7 @@ public class CurAlgPtuRepository extends BaseRepository<CurAlgPtu> {
      * @param endDateTime
      * @return created CurtailmentPtu ID.
      */
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)    
     public long create(long curAlgId, int startPtu, int numPtus, 
             LocalDateTime startDateTime, LocalDateTime endDateTime) {
         CurAlgPtu curAlgPtu = new CurAlgPtu();
@@ -52,10 +54,10 @@ public class CurAlgPtuRepository extends BaseRepository<CurAlgPtu> {
         curAlgPtu.setNumberPtus(numPtus);
         LocalDate startDate = new LocalDate(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth());
         curAlgPtu.setStartDate(startDate.toDateMidnight().toDate());
-        LocalDate endDate = new LocalDate(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth());
+        LocalDate endDate = new LocalDate(endDateTime.getYear(), endDateTime.getMonthOfYear(), endDateTime.getDayOfMonth());
         curAlgPtu.setEndDate(endDate.toDateMidnight().toDate());
-        curAlgPtu.setStartDatetime(startDateTime.toDateTime().toDate());
-        curAlgPtu.setEndDatetime(endDateTime.toDateTime().toDate());
+        curAlgPtu.setStartDatetime(startDateTime);
+        curAlgPtu.setEndDatetime(endDateTime);
         curAlgPtu.setPortfolioRemainingCurtailment(0);
         curAlgPtu.setAgrEnergy(0);
         curAlgPtu.setAgrPayment(0);
@@ -98,7 +100,7 @@ public class CurAlgPtuRepository extends BaseRepository<CurAlgPtu> {
             LocalDateTime ptuStartDateTime, LocalDateTime ptuEndDateTime) {
         StringBuilder queryString = new StringBuilder("SELECT ap FROM CurAlgPtu ap, ");
         queryString.append(" CurAlg a");
-        queryString.append(" WHERE ap.curAlgI = a.id");
+        queryString.append(" WHERE ap.curAlgId = a.id");
         queryString.append(" AND ap.startDatetime <= :ptuStartDateTime");
         queryString.append(" AND ap.endDatetime >= :ptuEndDateTime");
         queryString.append(" AND a.loop = :curtailmentAlgLoopNumber");

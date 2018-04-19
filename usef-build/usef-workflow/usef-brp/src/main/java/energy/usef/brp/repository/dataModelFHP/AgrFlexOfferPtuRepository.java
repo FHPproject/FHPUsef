@@ -21,6 +21,7 @@ import energy.usef.core.repository.BaseRepository;
 import energy.usef.core.workflow.dto.DispositionTypeDto;
 
 import javax.ejb.Stateless;
+import javax.transaction.Transactional;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
@@ -45,6 +46,7 @@ public class AgrFlexOfferPtuRepository extends BaseRepository<AgrFlexOfferPtu> {
      * @param disposition
      * @return created AgrFlexOfferPtu ID.
      */
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)    
     public long create(long agrFlexOfferId, LocalDateTime startDateTime,
         LocalDateTime endDateTime, int numberOfPtus, int startPtu, float price,
         float activePower) {
@@ -53,10 +55,10 @@ public class AgrFlexOfferPtuRepository extends BaseRepository<AgrFlexOfferPtu> {
         agrFlexOfferPtu.setAgrFlexOfferId(agrFlexOfferId);
         LocalDate startDate = new LocalDate(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth());
         agrFlexOfferPtu.setStartDate(startDate.toDateMidnight().toDate());
-        LocalDate endDate = new LocalDate(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth());
+        LocalDate endDate = new LocalDate(endDateTime.getYear(), endDateTime.getMonthOfYear(), endDateTime.getDayOfMonth());
         agrFlexOfferPtu.setEndDate(endDate.toDateMidnight().toDate());
-        agrFlexOfferPtu.setStartDatetime(startDateTime.toDateTime().toDate());
-        agrFlexOfferPtu.setEndDatetime(endDateTime.toDateTime().toDate());
+        agrFlexOfferPtu.setStartDatetime(startDateTime);
+        agrFlexOfferPtu.setEndDatetime(endDateTime);
         agrFlexOfferPtu.setNumberPtus(numberOfPtus);
         agrFlexOfferPtu.setStartPtu(startPtu);
         agrFlexOfferPtu.setPrice(price);

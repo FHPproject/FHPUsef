@@ -134,6 +134,17 @@ public class PbcFeeder {
         return stubColInputMap.get("APX");
     }
 
+    //TECNALIA-BEGIN
+    /**
+     * Method to return SolveWindForecast column from map.
+     *
+     * @return
+     */
+    public List<Double> getSolveWindForecast() {
+        return stubColInputMap.get("SolveWindForecast");
+    }
+    //TECNALIA-END   
+    
     /**
      * Method to return PtuStartTime column from map.
      *
@@ -310,6 +321,11 @@ public class PbcFeeder {
         case 7:
             row.setApx(c.getNumericCellValue());
             break;
+            // TECNALIA-BEGIN
+        case 8:
+            row.setSolveWindForecast(c.getNumericCellValue());
+            break;
+            // TECNALIA-END
         default:
             break;
         }

@@ -82,6 +82,15 @@ public class PbcFeederEndpoint {
     public List<Double> getApx() {
         return pbcFeeder.getApx();
     }
+    
+    //TECNALIA-BEGIN  
+    @GET
+    @Path("/solveWindForecast")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Double> getSolveWindForecast() {
+        return pbcFeeder.getSolveWindForecast();
+    }    
+    //TECNALIA-END         
 
     @GET
     @Path("/pvactual")

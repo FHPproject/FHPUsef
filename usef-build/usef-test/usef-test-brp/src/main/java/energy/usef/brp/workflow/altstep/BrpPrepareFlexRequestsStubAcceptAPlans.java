@@ -84,7 +84,11 @@ public class BrpPrepareFlexRequestsStubAcceptAPlans implements WorkflowStep {
             LocalDate aPlanDate = aPlanDtos.get(0).getPeriod();
 
             int numberOfPtusPerDay = PtuUtil.getNumberOfPtusPerDay(aPlanDate, ptuDuration);
+            //TECNALIA-BEGIN
             Map<Integer, BigDecimal> map = pbcFeederService.retrieveApxPrices(aPlanDate, 1, numberOfPtusPerDay);
+            //Map<Integer, BigDecimal> map = pbcFeederService.retrieveApxPrices(aPlanDate, ((aPlanDate.getDayOfWeek() - 1)*numberOfPtusPerDay)+1, numberOfPtusPerDay);
+            //TECNALIA-END
+            
 
             BigDecimal max = map.values().stream().max(BigDecimal::compareTo).get();
             BigDecimal min = map.values().stream().min(BigDecimal::compareTo).get();

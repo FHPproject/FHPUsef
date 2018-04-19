@@ -88,7 +88,7 @@ public class CurAlgPtuAgr {
         return agrId;
     }
 
-    public void setAgrid(Long agrId) {
+    public void setAgrId(Long agrId) {
         this.agrId = agrId;
     }
 

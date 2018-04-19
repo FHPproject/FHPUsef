@@ -29,6 +29,7 @@ public class PbcStubDataDto {
     private Double pvLoadForecast;
     private Double pvLoadActual;
     private Double apx;
+    private Double solveWindForecast;    
     private PbcPtuContainerDto ptuContainer;
 
     public PbcStubDataDto() {
@@ -42,6 +43,15 @@ public class PbcStubDataDto {
         this.apx = apx;
     }
 
+    //TECNALIA-BEGIN
+    public Double getSolveWindForecast() {
+        return solveWindForecast;
+    }
+
+    public void setSolveWindForecast(Double solveWindForecast) {
+        this.solveWindForecast = solveWindForecast;
+    }
+    //TECNALIA-END    
     public Double getPvLoadActual() {
         return pvLoadActual;
     }
@@ -117,6 +127,7 @@ public class PbcStubDataDto {
                 ", congestionPointAvg=" + congestionPointAvg +
                 ", pvLoadForecast=" + pvLoadForecast +
                 ", pvLoadActual=" + pvLoadActual +
+                ", solveWindForecast=" + solveWindForecast +                
                 "]";
     }
 }

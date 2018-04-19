@@ -109,7 +109,8 @@ public class BrpPlaceFlexOrdersFHP implements WorkflowStep {
         
         // retrieve the data from the PBC Feeder
         /*Map<Integer, BigDecimal> pbcStubData = pbcFeederService
-                .retrieveApxPrices(period, 1, PtuUtil.getNumberOfPtusPerDay(period, ptuDuration));*/
+                .retrieveApxPrices(period, ((startDate.getDayOfWeek() - 1)*numberOfPtusPerDay)+1, numberOfPtusPerDay);*/
+        
 
         // only accept offers with ptuFlexOffers that ALL are between the apx price thresholds.
         /*offers.stream().filter(flexOffer -> hasPtuFlexOffersWithAllPricesBetweenThresholds(flexOffer, pbcStubData, ptuDuration)).

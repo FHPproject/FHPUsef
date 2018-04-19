@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.joda.time.LocalDateTime;
 
 
 /**
@@ -122,20 +123,38 @@ public class FlexAlgPtu {
         this.numberPtus = numberPtus;
     }
 
-    public Date getStartDatetime() {
-        return startDatetime;
-    }
+    public LocalDateTime getStartDatetime() {
+        if (startDatetime == null) {
+            return null;
+        }
+        return new LocalDateTime(startDatetime);
+    } 
 
-    public void setStartDatetime(Date startDatetime) {
-        this.startDatetime = startDatetime;
-    }
+    public void setStartDatetime(LocalDateTime startDatetime) {
+        if (startDatetime == null) {
+            this.startDatetime = null;
+        } else {
+            this.startDatetime = startDatetime.toDateTime().toDate();
+        }
+    } 
 
-    public Date getEndDatetime() {
-        return endDatetime;
-    }
+    public LocalDateTime getEndDatetime() {
+        if (endDatetime == null) {
+            return null;
+        }
+        return new LocalDateTime(endDatetime);
+    }  
 
-    public void setEndDatetime(Date endDatetime) {
+    /*public void setEndDatetime(Date endDatetime) {
         this.endDatetime = endDatetime;
+    }*/
+    
+    public void setEndDatetime(LocalDateTime endDatetime) {
+        if (endDatetime == null) {
+            this.endDatetime = null;
+        } else {
+            this.endDatetime = endDatetime.toDateTime().toDate();
+        }
     }
 
     public float getImbalanceEnergy() {

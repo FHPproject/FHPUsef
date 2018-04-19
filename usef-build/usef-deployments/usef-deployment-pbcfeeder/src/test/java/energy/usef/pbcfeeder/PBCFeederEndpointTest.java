@@ -120,6 +120,24 @@ public class PBCFeederEndpointTest extends BaseResourceTest {
         Mockito.verify(pbcFeeder, Mockito.times(1)).getApx();
     }
 
+    //TECNALIA-BEGIN       
+    /**
+     * Test to get list of SolveWindForecast from PBC Endpoint.
+     *
+     * @throws URISyntaxException
+     */
+    @Test
+    public void testGetsolveWindForecast() throws URISyntaxException {
+        MockHttpRequest request = MockHttpRequest.get(URL + "solveWindForecast");
+        MockHttpResponse response = new MockHttpResponse();
+        Mockito.when(pbcFeeder.getSolveWindForecast()).thenReturn(
+                IntStream.rangeClosed(1, 100).mapToObj(index -> (double) index).collect(Collectors.toList()));
+        dispatcher.invoke(request, response);
+
+        Mockito.verify(pbcFeeder, Mockito.times(1)).getSolveWindForecast();
+    }
+    //TECNALIA-END      
+    
     /**
      * Test to get List of PV Actuals from PBC Endpoint.
      *

@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BrpReceivedAPlanFHP implements WorkflowStep {
     private static final Logger LOGGER = LoggerFactory.getLogger(BrpReceivedAPlanFHP.class);
-    private static final Random RANDOM = new Random();
+    //private static final Random RANDOM = new Random();
 
     /**
      * {@inheritDoc}
@@ -56,7 +56,9 @@ public class BrpReceivedAPlanFHP implements WorkflowStep {
     @SuppressWarnings("unchecked") public WorkflowContext invoke(WorkflowContext context) {
         LOGGER.info("BRPReceivedAPlan Stub invoked");
 
+        // acceptedAPlans are those for which flex will NOT be negotiated
         List<PrognosisDto> acceptedAPlans = new ArrayList<>();
+        // processedAPlans are those for which flex will be negotiated        
         List<PrognosisDto> processedAPlans = new ArrayList<>();
 
         @SuppressWarnings("unchecked")
@@ -64,7 +66,7 @@ public class BrpReceivedAPlanFHP implements WorkflowStep {
         List<PrognosisDto> receivedAplanDtos = (List<PrognosisDto>) context.getValue(IN.RECEIVED_A_PLAN_DTO_LIST.name());
         LOGGER.debug("Input: [{}] A-Plans (with RECEIVED status)", receivedAplanDtos.size());
 
-        //create countMap
+        //create countMap. All received A-plans are marked as PROCESSED
         Map<String, Integer> aplanCountPerParticipant = aPlanDtos.stream()
                 .collect(Collectors.groupingBy(PrognosisDto::getParticipantDomain))
                 .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().size()));
@@ -82,12 +84,12 @@ public class BrpReceivedAPlanFHP implements WorkflowStep {
         return context;
     }
 
-    private int generateRandomNumber(int minValue, int maxValue) {
+    /*private int generateRandomNumber(int minValue, int maxValue) {
         return RANDOM.nextInt((maxValue - minValue) + 1) + minValue;
     }
 
     private boolean randomChance(Integer nrOfAPlans) {
         return generateRandomNumber(1, nrOfAPlans) == 1;
-    }
+    }*/
 
 }

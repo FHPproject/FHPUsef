@@ -30,6 +30,9 @@ public class CurAlgPtuAgrDer {
     @Column(name = "AGR_ID", nullable = false)
     private Long agrId;
 //	public BIGINT AGR_ID;
+    @Column(name = "DER_ID", nullable = false)
+    private Long derId;
+//	public BIGINT DER_ID;    
     @Column(name = "AGR_DER_ENERGY")
     private float agrDerEnergy;
     @Column(name = "AGR_DER_PAYMENT")
@@ -87,8 +90,16 @@ public class CurAlgPtuAgrDer {
         return agrId;
     }
 
-    public void setAgrid(Long agrId) {
+    public void setAgrId(Long agrId) {
         this.agrId = agrId;
     }
+    
+    public Long getDerId() {
+        return agrId;
+    }
+
+    public void setDerid(Long derId) {
+        this.derId = derId;
+    }    
 
 }

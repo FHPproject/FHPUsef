@@ -254,6 +254,24 @@ public class PbcFeederService {
         Function<PbcStubDataDto, BigDecimal> getApx = data -> new BigDecimal(data.getApx());
         return pbcStubDataDtoList.stream().collect(Collectors.toMap(getPtuIndex::apply, getApx::apply));
     }
+    
+    //TECNALIA-BEGIN
+    /**
+     * Retrieves the wnd forecasted production from the data input sheet for a given period and a given duration.
+     *
+     * @param date          {@link LocalDate} period.
+     * @param startPtuIndex {@link Integer} starting ptu index of the duration (must be greater than 0).
+     * @param amountOfPtus  {@link Integer} amount of ptus of the duration.
+     * @return a {@link Map} of ptu index as key and forecasted energy production as value.
+     */
+    public Map<Integer, BigDecimal> retrieveSolveWindForecast(LocalDate date, int startPtuIndex, int amountOfPtus) {
+        List<PbcStubDataDto> pbcStubDataDtoList = pbcFeederClient.getPbcStubDataList(date, startPtuIndex, amountOfPtus);
+
+        Function<PbcStubDataDto, Integer> getPtuIndex = data -> data.getPtuContainer().getPtuIndex();
+        Function<PbcStubDataDto, BigDecimal> getSolveWindForecast = data -> new BigDecimal(data.getSolveWindForecast());
+        return pbcStubDataDtoList.stream().collect(Collectors.toMap(getPtuIndex::apply, getSolveWindForecast::apply));
+    }
+    //TECNALIA-END     
 
     private void fillDtusForUdi(UdiPortfolioDto pvUdiDto, List<PbcStubDataDto> pbcStubDataDtoList, int ptuDuration, int dtuDuration,
             int startPtuIndex) {

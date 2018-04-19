@@ -55,5 +55,29 @@ public class PbcFeederService {
 
         return apxPrices;
     }
+    
+    //TECNALIA-BEGIN  
+    /**
+     * This method sets the SolveWindForecast on the ConnectionDto. This method can return data for multiple dates, so the ptu
+     * index in the map is not a ptu index for one single day!
+     *
+     * @param date
+     * @param startPtuIndex
+     * @param amountOfPtus
+     * @return
+     */
+    public Map<Integer, BigDecimal> retrieveSolveWindForecast(LocalDate date, int startPtuIndex, int amountOfPtus) {
+        List<PbcStubDataDto> pbcStubDataDtoList = pbcFeederClient.getPbcStubDataList(date, startPtuIndex, amountOfPtus);
+
+        Map<Integer, BigDecimal> solveWindForecast = new HashMap<>();
+
+        // if this method is used, the ptu index will be increased every ptu over multiple days
+        for (int i = 0; i < pbcStubDataDtoList.size(); i++) {
+            solveWindForecast.put(i + 1, BigDecimal.valueOf(pbcStubDataDtoList.get(i).getSolveWindForecast()));
+        }
+
+        return solveWindForecast;
+    }    
+    //TECNALIA-END     
 
 }

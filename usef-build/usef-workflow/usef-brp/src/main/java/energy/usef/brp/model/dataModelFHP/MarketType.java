@@ -9,8 +9,7 @@ package energy.usef.brp.model.dataModelFHP;
  *
  * @author tecnalia
  */
-public enum DerProductionType {
+public enum MarketType {
     DAY_AHEAD_MARKET,
-    INTRADAY_MARKET,
-    SYSTEM_FLEX  
+    INTRADAY_MARKET
 }

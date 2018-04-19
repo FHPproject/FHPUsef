@@ -23,6 +23,7 @@ import energy.usef.core.util.DateTimeUtil;
 
 import javax.ejb.Stateless;
 import javax.persistence.TemporalType;
+import javax.transaction.Transactional;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
@@ -49,6 +50,7 @@ public class AgrFlexOfferRepository extends BaseRepository<AgrFlexOffer> {
      * @param status
      * @return created AgrFlexOffer ID.
      */
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)    
     public long create(Long agrId, String agrDomain, Integer ptuDuration, int numberOfPtusPerDay,
         Long agrFlexRequestSequence, Long agrFlexRequestId, String messageId, String currency,
         DocumentStatus status) {

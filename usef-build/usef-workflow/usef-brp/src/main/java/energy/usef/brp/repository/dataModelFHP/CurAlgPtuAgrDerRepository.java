@@ -50,11 +50,11 @@ public class CurAlgPtuAgrDerRepository extends BaseRepository<CurAlgPtuAgrDer> {
     public CurAlgPtuAgrDer get(long agrId, long derId, int curtailmentAlgLoopNumber,
             LocalDateTime ptuStartDateTime, LocalDateTime ptuEndDateTime) {
         StringBuilder queryString = new StringBuilder("SELECT apad FROM CurAlgPtuAgrDer apad, ");
-        queryString.append(" CurAlg a, CurAlgPtu ap, CurAlgAgrDer aad, CurAlgAgr aa, agrFlexOffer fof, agrFlexOrder for");
+        queryString.append(" CurAlg a, CurAlgPtu ap, CurAlgAgrDer aad, CurAlgAgr aa, AgrFlexOffer fof, AgrFlexOrder for");
         queryString.append(" WHERE apad.derId = :derId");
         queryString.append(" AND apad.agrId = :agrId");
-        queryString.append(" AND apad.curlAlgPtuId = ap.Id");
-        queryString.append(" AND ap.curlAlgId = a.id");
+        queryString.append(" AND apad.curAlgPtuId = ap.Id");
+        queryString.append(" AND ap.curAlgId = a.id");
         queryString.append(" AND ap.startDatetime <= :ptuStartDateTime");
         queryString.append(" AND ap.endDatetime >= :ptuEndDateTime");
         queryString.append(" AND a.loop = :curtailmentAlgLoopNumber");

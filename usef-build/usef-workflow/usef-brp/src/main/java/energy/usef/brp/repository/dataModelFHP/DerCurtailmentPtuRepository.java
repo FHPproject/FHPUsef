@@ -17,14 +17,13 @@
 package energy.usef.brp.repository.dataModelFHP;
 
 import energy.usef.brp.model.dataModelFHP.DerCurtailmentPtu;
-import energy.usef.brp.model.dataModelFHP.DerCurtailmentPtu;
-import energy.usef.brp.model.dataModelFHP.DerProductionType;
+import energy.usef.brp.model.dataModelFHP.DerCurtailmentType;
 import energy.usef.core.repository.BaseRepository;
 import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.persistence.TemporalType;
-import org.joda.time.LocalDate;
+import javax.transaction.Transactional;
 import org.joda.time.LocalDateTime;
 
 /**
@@ -47,6 +46,7 @@ public class DerCurtailmentPtuRepository extends BaseRepository<DerCurtailmentPt
      * @param activePower
      * @return created CurtailmentPtu ID.
      */
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     public long create(long derCurtailmentId, int startPtu, int numPtus, 
             LocalDateTime startDateTime, LocalDateTime endDateTime, float activePower) {
         DerCurtailmentPtu derCurtailmentPtu = new DerCurtailmentPtu();
@@ -54,12 +54,12 @@ public class DerCurtailmentPtuRepository extends BaseRepository<DerCurtailmentPt
         derCurtailmentPtu.setStartPtu(startPtu);
         derCurtailmentPtu.setNumberPTUs(numPtus);
         derCurtailmentPtu.setActivePower(activePower);
-        LocalDate startDate = new LocalDate(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth());
-        derCurtailmentPtu.setStartDate(startDate.toDateMidnight().toDate());
-        LocalDate endDate = new LocalDate(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth());
-        derCurtailmentPtu.setEndDate(endDate.toDateMidnight().toDate());
-        derCurtailmentPtu.setStartDatetime(startDateTime.toDateTime().toDate());
-        derCurtailmentPtu.setEndDatetime(endDateTime.toDateTime().toDate());
+
+        derCurtailmentPtu.setStartDate(startDateTime.toLocalDate().toDateTimeAtStartOfDay().toDate());      
+        derCurtailmentPtu.setEndDate(endDateTime.toLocalDate().toDateTimeAtStartOfDay().toDate()); 
+        
+        derCurtailmentPtu.setStartDatetime(startDateTime);
+        derCurtailmentPtu.setEndDatetime(endDateTime);
         
         persist(derCurtailmentPtu);
         return derCurtailmentPtu.getId();
@@ -75,7 +75,7 @@ public class DerCurtailmentPtuRepository extends BaseRepository<DerCurtailmentPt
      * @return DerCurtailmentPtu entities
      */
     public DerCurtailmentPtu get(long derId, LocalDateTime ptuStartDateTime,
-            LocalDateTime ptuEndDateTime, DerProductionType type) {
+            LocalDateTime ptuEndDateTime, DerCurtailmentType type) {
         StringBuilder queryString = new StringBuilder("SELECT ptu FROM DerCurtailment c, DerCurtailmentPtu ptu");
         queryString.append(" WHERE c.derId = :derId");
         queryString.append(" AND c.type = :type");
@@ -93,4 +93,27 @@ public class DerCurtailmentPtuRepository extends BaseRepository<DerCurtailmentPt
                 
         return result.get(0);
     }
+
+
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)    
+    public DerCurtailmentPtu fetch(long derId, long derCurtailmentId, 
+            int startPtu, int numPtus, 
+            LocalDateTime ptuStartDateTime, LocalDateTime ptuEndDateTime, 
+            float activePower, DerCurtailmentType type){
+        // The same as get but in case there is no coincident register it creates it from stub data
+        DerCurtailmentPtu derCurtailmentPtu = 
+                get(derId, ptuStartDateTime, ptuEndDateTime, type);
+        if ((derCurtailmentPtu == null) || (derCurtailmentPtu.getId() == 0))
+        {
+            create(derCurtailmentId, startPtu, numPtus, 
+            ptuStartDateTime, ptuEndDateTime, activePower);
+            derCurtailmentPtu = get(derId, ptuStartDateTime,
+            ptuEndDateTime, type);                
+        }          
+
+        if(derCurtailmentPtu == null)
+            return null;
+                
+        return derCurtailmentPtu;
+    } 
 }

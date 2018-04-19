@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.persistence.TemporalType;
+import javax.transaction.Transactional;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
@@ -46,10 +47,11 @@ public class CurAlgPtuDerRepository extends BaseRepository<CurAlgPtuDer> {
      * @param endDateTime
      * @return created CurtailmentPtu ID.
      */
-    public long create(long curAlgDerId, long curlAlgPtuId, long derId, float derRemainingCurtailmentPtu) {
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)    
+    public long create(long curAlgDerId, long curAlgPtuId, long derId, float derRemainingCurtailmentPtu) {
         CurAlgPtuDer curAlgPtuDer = new CurAlgPtuDer();
         curAlgPtuDer.setCurAlgDerId(curAlgDerId);
-        curAlgPtuDer.setCurAlgPtuId(curlAlgPtuId);
+        curAlgPtuDer.setCurAlgPtuId(curAlgPtuId);
         curAlgPtuDer.setDerId(derId);
         curAlgPtuDer.setDerRemainingCurtailment(derRemainingCurtailmentPtu);
         curAlgPtuDer.setDerEnergy(0);

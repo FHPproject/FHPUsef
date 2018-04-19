@@ -162,11 +162,11 @@ public class BrpCreateFlexRequestCoordinator {
             flexRequest.getPTU().add(ptu);
             //TECNALIA-BEGIN
             //Save data in AGR_FLEX_REQUEST_PTU table
+            ptuStartDateTime = startDateTime.plusMinutes((ptuFlexRequest.getPtuIndex().intValue() -  1) * ptuDuration);
+            ptuEndDateTime = startDateTime.plusMinutes((ptuFlexRequest.getPtuIndex().intValue() -  0) * ptuDuration);           
             agrFlexRequestPtuRepository.create(agrFlexRequestId, ptuStartDateTime,
                     ptuEndDateTime, 1, ptuFlexRequest.getPtuIndex().intValue(), ptuFlexRequest.getDisposition(),
                     ptuFlexRequest.getPower().floatValue());
-            ptuStartDateTime = ptuStartDateTime.plusMinutes(ptuDuration);
-            ptuEndDateTime = ptuEndDateTime.plusMinutes(ptuDuration);
         //});
         }
             //TECNALIA-END

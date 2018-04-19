@@ -16,19 +16,18 @@
 
 package energy.usef.brp.repository.dataModelFHP;
 
-import energy.usef.brp.model.dataModelFHP.MarketReal;
+import energy.usef.brp.model.dataModelFHP.DerProductionForecastPtu;
 import energy.usef.brp.model.dataModelFHP.MarketRealPtu;
-import energy.usef.brp.repository.dataModelFHP.MarketRealRepository;
 import energy.usef.core.repository.BaseRepository;
-import energy.usef.core.util.DateTimeUtil;
+import java.util.Date;
 
 import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.persistence.TemporalType;
+import javax.transaction.Transactional;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
 
 /**
  * @author TECNALIA
@@ -63,20 +62,50 @@ public class MarketRealPtuRepository extends BaseRepository<MarketRealPtu> {
                 
         return result.get(0);
     }
+    
+
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
+    public long create(long marketRealId, int startPtu, int numPtus, 
+            LocalDateTime startDateTime, LocalDateTime endDateTime, float price) {
+            MarketRealPtu marketRealPtu = new MarketRealPtu();                    
+            
+            marketRealPtu.setStartDate(startDateTime.toLocalDate().toDateTimeAtStartOfDay().toDate());        
+            marketRealPtu.setEndDate(endDateTime.toLocalDate().toDateTimeAtStartOfDay().toDate());        
+            marketRealPtu.setStartDatetime(startDateTime);
+            marketRealPtu.setEndDatetime(endDateTime);       
+
+            marketRealPtu.setMarketRealId(marketRealId);
+            marketRealPtu.setStartPtu(startPtu);
+            marketRealPtu.setNumberPtus(1);
+            
+            marketRealPtu.setPrice(price);
+            //marketRealPtu.setEnergy(0);
+
+            persist(marketRealPtu);
+        return marketRealPtu.getId();
+    }    
+
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     public long InitializeTestValues(long marketRealId, LocalDate startDate, Integer ptuDuration, int numberOfPtusPerDay) {
 
         //TODO: Initialize MarketRealPtu tables with Test values
-        MarketRealPtu marketRealPtu = new MarketRealPtu();
         int ptuDone = 0;
         
         for (int ptuNum = 1; ptuNum<=numberOfPtusPerDay; ptuNum++) {
+            MarketRealPtu marketRealPtu = new MarketRealPtu();
+                    
             LocalDateTime dayStart = startDate.toDateTimeAtStartOfDay().toLocalDateTime();
             LocalDateTime ptuStart = dayStart.plusMinutes(ptuDuration * (ptuNum - 1));
             LocalDateTime ptuEnd = ptuStart.plusMinutes(ptuDuration);
             LocalDate endDate = startDate.plusDays(1);
+            
+            Date DateStartDate = startDate.toDateTimeAtStartOfDay().toDate(); 
+            Date DateEndDate = ptuEnd.toLocalDate().toDateTimeAtStartOfDay().toDate();
+            
 
-            marketRealPtu.setStartDate(startDate.toDateTimeAtStartOfDay().toDate()); 
-            marketRealPtu.setEndDate(ptuEnd.toLocalDate().toDateTimeAtStartOfDay().toDate());
+            marketRealPtu.setStartDate(DateStartDate); 
+            marketRealPtu.setEndDate(DateEndDate);            
+            
             marketRealPtu.setStartDatetime(ptuStart); 
             marketRealPtu.setEndDatetime(ptuEnd);        
 
@@ -94,4 +123,26 @@ public class MarketRealPtuRepository extends BaseRepository<MarketRealPtu> {
 
         return ptuDone;
     }    
+    
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)    
+    public MarketRealPtu fetch(long marketRealId, 
+            int startPtu, int numPtus, 
+            LocalDateTime ptuStartDateTime, LocalDateTime ptuEndDateTime, 
+            float price){
+        // The same as get but in case there is no coincident register it creates it from stub data
+        MarketRealPtu marketRealPtu = 
+                get(marketRealId, ptuStartDateTime, ptuEndDateTime);
+        if ((marketRealPtu == null) || (marketRealPtu.getId() == 0))
+        {
+            create(marketRealId, startPtu, numPtus, 
+            ptuStartDateTime, ptuEndDateTime, price);
+            marketRealPtu = get(marketRealId, ptuStartDateTime,
+            ptuEndDateTime);                
+        }          
+
+        if(marketRealPtu == null)
+            return null;
+                
+        return marketRealPtu;
+    }        
 }

@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.persistence.TemporalType;
+import javax.transaction.Transactional;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
@@ -50,6 +51,7 @@ public class AgrFlexRequestRepository extends BaseRepository<AgrFlexRequest> {
      * @param messageId
      * @return created AgrFlexRequest ID.
      */
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)    
     public long create(Long agrId, String agrDomain, LocalDateTime startDateTime,
         LocalDateTime endDateTime, Integer ptuDuration, int numberOfPtusPerDay,
         Long prognosisSequence, Long PrognosisId, String messageId) {
@@ -63,10 +65,10 @@ public class AgrFlexRequestRepository extends BaseRepository<AgrFlexRequest> {
         agrFlexRequest.setPtuDurationMins(ptuDuration);
         LocalDate startDate = new LocalDate(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth());
         agrFlexRequest.setStartDate(startDate.toDateMidnight().toDate());
-        LocalDate endDate = new LocalDate(startDateTime.getYear(), startDateTime.getMonthOfYear(), startDateTime.getDayOfMonth());
+        LocalDate endDate = new LocalDate(endDateTime.getYear(), endDateTime.getMonthOfYear(), endDateTime.getDayOfMonth());
         agrFlexRequest.setEndDate(endDate.toDateMidnight().toDate());
-        agrFlexRequest.setStartDatetime(startDateTime.toDateTime().toDate());
-        agrFlexRequest.setEndDatetime(endDateTime.toDateTime().toDate());
+        agrFlexRequest.setStartDatetime(startDateTime);
+        agrFlexRequest.setEndDatetime(endDateTime);
         agrFlexRequest.setMessageID(messageId);
         agrFlexRequest.setPrognosisId(PrognosisId);
         agrFlexRequest.setPrognosisSequence(prognosisSequence);
