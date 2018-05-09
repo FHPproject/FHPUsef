@@ -24,9 +24,9 @@ public class CurAlgPtuAgrDer {
     @Column(name = "CUR_ALG_PTU_ID", nullable = false)
     private Long curAlgPtuId;
 //	public BIGINT CUR_ALG_PTU_ID;
-    @Column(name = "CUR_ALG_AGR_ID", nullable = false)
-    private Long curAlgAgrId;
-//	public BIGINT CUR_ALG_AGR_ID;
+    @Column(name = "CUR_ALG_AGR_DER_ID", nullable = false)
+    private Long curAlgAgrDerId;
+//	public BIGINT CUR_ALG_AGR_DER_ID;
     @Column(name = "AGR_ID", nullable = false)
     private Long agrId;
 //	public BIGINT AGR_ID;
@@ -46,12 +46,12 @@ public class CurAlgPtuAgrDer {
         this.curAlgPtuId = curAlgPtuId;
     }
 
-    public Long getCurAlgAgrId() {
-        return curAlgAgrId;
+    public Long getCurAlgAgrDerId() {
+        return curAlgAgrDerId;
     }
 
-    public void setCurAlgAgrId(Long curAlgAgrId) {
-        this.curAlgAgrId = curAlgAgrId;
+    public void setCurAlgAgrDerId(Long curAlgAgrDerId) {
+        this.curAlgAgrDerId = curAlgAgrDerId;
     }
 
     public float getAgrDerEnergy() {
@@ -98,8 +98,10 @@ public class CurAlgPtuAgrDer {
         return agrId;
     }
 
-    public void setDerid(Long derId) {
+    public void setDerId(Long derId) {
         this.derId = derId;
-    }    
+    }  
+    
+    
 
 }

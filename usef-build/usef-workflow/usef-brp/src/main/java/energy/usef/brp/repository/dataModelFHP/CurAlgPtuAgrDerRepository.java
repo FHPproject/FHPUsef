@@ -19,6 +19,7 @@ package energy.usef.brp.repository.dataModelFHP;
 import energy.usef.brp.model.dataModelFHP.CurAlgPtuAgrDer;
 import energy.usef.core.model.DocumentStatus;
 import energy.usef.core.repository.BaseRepository;
+import energy.usef.core.util.DateTimeUtil;
 
 import java.util.List;
 
@@ -78,5 +79,32 @@ public class CurAlgPtuAgrDerRepository extends BaseRepository<CurAlgPtuAgrDer> {
                 
         return result.get(0);
     }
-
+    
+        /**
+     * Create CurAlgPtuAgrDer.
+     * 
+     * @param curAlgAgrDerId
+     * @param curAlgPtuId
+     * @param agrDerEnergy
+     * @param agrId
+     * @param agrDerPayment
+     * @param derId
+     * @return created CurAlgAgrDer ID.
+     */
+    //@Transactional(value = Transactional.TxType.REQUIRES_NEW)
+    public long create(long curAlgAgrDerId,long curAlgPtuId,long agrId, long derId, float agrDerEnergy, float agrDerPayment) {
+        CurAlgPtuAgrDer curAlgPtuAgrDer = new CurAlgPtuAgrDer();
+        LocalDateTime now = DateTimeUtil.getCurrentDateTime();
+        curAlgPtuAgrDer.setCurAlgAgrDerId(curAlgAgrDerId);
+        curAlgPtuAgrDer.setCurAlgPtuId(curAlgPtuId);
+        curAlgPtuAgrDer.setAgrId(agrId);
+        curAlgPtuAgrDer.setDerId(derId);
+        curAlgPtuAgrDer.setAgrDerEnergy(0);
+        curAlgPtuAgrDer.setAgrDerPayment(0);
+       
+        persist(curAlgPtuAgrDer);
+        return curAlgPtuAgrDer.getId();
+    }
+    
 }
+

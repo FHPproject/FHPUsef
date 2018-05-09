@@ -64,7 +64,7 @@ public class FlexAlgPtuAgr {
         return flexAlgAgrId;
     }
 
-    public void setFlexAlgAgrid(Long flexAlgAgrid) {
+    public void setFlexAlgAgrId(Long flexAlgAgrid) {
         this.flexAlgAgrId = flexAlgAgrId;
     }
 
@@ -72,7 +72,7 @@ public class FlexAlgPtuAgr {
         return agrId;
     }
 
-    public void setAgrid(Long agrId) {
+    public void setAgrId(Long agrId) {
         this.agrId = agrId;
     }
 

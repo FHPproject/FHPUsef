@@ -30,6 +30,9 @@ public class CurAlgAgr {
     @Column(name = "AGR_FLEX_OFFER_ID", nullable = false)
     private Long agrFlexOfferId;
 //	public BIGINT AGR_FLEX_OFFER_ID;
+    @Column(name = "AGR_FLEX_REQUEST_ID", nullable = false)
+    private Long agrFlexRequestId;
+//	public BIGINT AGR_FLEX_REQUEST_ID;
     @Column(name = "AGR_PAYMENT")
     private float agrPayment;
 //	public FLOAT AGR_PAYMENT;
@@ -72,7 +75,15 @@ public class CurAlgAgr {
     public void setAgrId(Long agrId) {
         this.agrId = agrId;
     }
+    
+    public Long getAgrFlexRequestId() {
+        return agrFlexRequestId;
+    }
 
+    public void setAgrFlexRequestId(Long agrFlexRequestId) {
+        this.agrFlexRequestId = agrFlexRequestId;
+    }
+    
     public Long getAgrFlexOfferId() {
         return agrFlexOfferId;
     }
@@ -80,5 +91,6 @@ public class CurAlgAgr {
     public void setAgrFlexOfferId(Long agrFlexOfferId) {
         this.agrFlexOfferId = agrFlexOfferId;
     }
-
+    
+  
 }

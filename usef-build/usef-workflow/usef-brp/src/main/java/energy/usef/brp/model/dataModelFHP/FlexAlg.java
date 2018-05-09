@@ -27,7 +27,7 @@ public class FlexAlg {
     private Date datetime;
 //	public TIMESTAMP DATETIME;
     @Column(name = "TYPE")
-    private String type;
+    private MarketType type;
 //	public VARCHAR TYPE;    
     @Column(name = "PTU_DURATION_MINS")
     private int ptuDurationMins;
@@ -73,11 +73,11 @@ public class FlexAlg {
         this.datetime = datetime;
     }
 
-    public String getType() {
+    public MarketType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(MarketType type) {
         this.type = type;
     }
 
@@ -112,11 +112,11 @@ public class FlexAlg {
         }
     } 
 
-    public Date getStartdate() {
+    public Date getStartDate() {
         return startdate;
     }
 
-    public void setStartdate(Date startdate) {
+    public void setStartDate(Date startdate) {
         this.startdate = startdate;
     }
 
