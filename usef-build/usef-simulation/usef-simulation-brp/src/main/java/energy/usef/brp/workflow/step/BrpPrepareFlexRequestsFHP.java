@@ -20,6 +20,8 @@ import energy.usef.brp.config.ConfigBrp;
 import energy.usef.brp.config.ConfigBrpParam;
 import energy.usef.brp.model.dataModelFHP.AGR;
 import energy.usef.brp.model.dataModelFHP.CurAlg;
+import energy.usef.brp.model.dataModelFHP.CurAlgAgr;
+import energy.usef.brp.model.dataModelFHP.CurAlgAgrOffer;
 import energy.usef.brp.model.dataModelFHP.CurAlgDer;
 import energy.usef.brp.model.dataModelFHP.CurAlgPtu;
 import energy.usef.brp.model.dataModelFHP.CurAlgPtuAgrDer;
@@ -35,12 +37,15 @@ import energy.usef.brp.model.dataModelFHP.MarketReal;
 import energy.usef.brp.model.dataModelFHP.MarketRealPtu;
 import energy.usef.brp.model.dataModelFHP.MarketType;
 import energy.usef.brp.pbcfeederimpl.PbcFeederService;
+import energy.usef.brp.repository.dataModelFHP.AgrFlexRequestRepository;
 import energy.usef.brp.repository.dataModelFHP.AgrRepository;
 import energy.usef.brp.repository.dataModelFHP.CurAlgDerRepository;
 import energy.usef.brp.repository.dataModelFHP.CurAlgPtuAgrDerRepository;
 import energy.usef.brp.repository.dataModelFHP.CurAlgPtuDerRepository;
 import energy.usef.brp.repository.dataModelFHP.CurAlgPtuRepository;
 import energy.usef.brp.repository.dataModelFHP.CurAlgRepository;
+import energy.usef.brp.repository.dataModelFHP.CurAlgAgrRepository;
+import energy.usef.brp.repository.dataModelFHP.CurAlgAgrOfferRepository;
 import energy.usef.brp.repository.dataModelFHP.DerCurtailmentRepository;
 import energy.usef.brp.repository.dataModelFHP.DerCurtailmentPtuRepository;
 import energy.usef.brp.repository.dataModelFHP.DerProductionForecastPtuRepository;
@@ -123,6 +128,9 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
     
     @Inject
     private AgrRepository agrRepository;
+    
+    @Inject
+    private AgrFlexRequestRepository agrFlexRequestRepository;    
 
     @Inject
     private DerProfitabilityThresholdPtuRepository derProfitabilityThresholdPtuRepository;
@@ -143,6 +151,12 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
     private CurAlgRepository curAlgRepository;
     
     @Inject
+    private CurAlgAgrRepository curAlgAgrRepository;
+
+    @Inject
+    private CurAlgAgrOfferRepository curAlgAgrOfferRepository;
+    
+    @Inject
     private CurAlgPtuRepository curAlgPtuRepository;
 
     @Inject
@@ -153,6 +167,8 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
     
     @Inject
     private CurAlgPtuAgrDerRepository curAlgPtuAgrDerRepository;
+    
+      
     
     /**BigDecimal value BigDecimal value = map.get(ptuAPlanDto.getPtuIndex().intValue());
             = map.get(ptuAPlanDto.getPtuIndex().intValue());
@@ -246,9 +262,12 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
                                         numberOfPtusPerDay,
                                         ptu.getDisposition(), PowerUtil.powerToEnergy(ptu.getPower(), ptuDuration)));
                     }
-                    if (anyFlexRequested){
-                        flexRequestDtos.add(flexRequestDto);
-                    } else {
+                    if (anyFlexRequested)
+                    {                        
+                        flexRequestDtos.add(flexRequestDto);                       
+                    } 
+                    else 
+                    {
                         acceptedAPlans.add(aPlanDto);
                     }
                 }
@@ -322,8 +341,8 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
                         curAlgPtu.getPortfolioRemainingCurtailment()));
             } else {
                 //DispositionTypeDto.AVAILABLE
-                //This is just applicable to the DSO flex request
-                //flexRequestDto.getPtus().add(buildFlexRequestAvailablePtu(ptuAPlanDto));
+                //Cero power. If this PTUs are not included the AGR answers WRONG_NUMBER_OF_PTUS
+                flexRequestDto.getPtus().add(buildFlexRequestAvailablePtu(ptuAPlanDto));
              }
             ptuStartDateTime = ptuStartDateTime.plusMinutes(ptuDuration);
             ptuEndDateTime = ptuEndDateTime.plusMinutes(ptuDuration);
@@ -598,10 +617,18 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
                 } else {
                     List<AGR> agrList = agrRepository.getAgrs();
                     float curAlgPtuAgrDerEnergySum = 0;
-                    for(AGR agr:agrList) {
+                    for(AGR agr:agrList) 
+                    {
+                        CurAlgAgr curAlgAgr = curAlgAgrRepository.get(curAlgId, agr.getId());
+                        
+                        CurAlgAgrOffer curAlgAgrOffer = curAlgAgrOfferRepository.get(curAlgAgr.getAgrFlexOfferId(), agr.getId());
+                        
                         CurAlgPtuAgrDer curAlgPtuAgrDer = curAlgPtuAgrDerRepository.get(agr.getId(), 
                                 der.getId(), curtailmentAlgLoopNumber-1, ptuStartDateTime, ptuEndDateTime);
-                        curAlgPtuAgrDerEnergySum += curAlgPtuAgrDer.getAgrDerEnergy();
+                        if (curAlgAgrOffer.isSelected()== true)
+                        {
+                            curAlgPtuAgrDerEnergySum += curAlgPtuAgrDer.getAgrDerEnergy();
+                        }
                     }
                     derRemainingCurtailmentPtu = derCurtailmentPtu.getActivePower() - curAlgPtuAgrDerEnergySum;
                 }
@@ -618,4 +645,6 @@ public class BrpPrepareFlexRequestsFHP implements WorkflowStep {
         } 
         return remainingCurtailment;
     }  
+    
+    
 }
